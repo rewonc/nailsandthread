@@ -1,63 +1,37 @@
 var _; /*globals*/
 
+//constructor 
+
 function ImageParser(src) {
   this.src = src;
-  var image = new Image();
-  image.src = this.src;
+  this.image = new Image();
+  this.image.src = src;
+  this.drawer = new ImageDrawer();
+
+  this.domLink = function(){
+    this.domImage = document.getElementById('image');
+    this.domCanvas = document.getElementById('canvas');
+  }
+  this.context = function(){
+    return this.domCanvas.getContext("2d");
+  }
 }
 
-//need to refactor these fxns to be less confused and only do 1 task
+ImageParser.prototype.imgPush = function() {
+   this.domImage.src = this.src;
+}
+ImageParser.prototype.canvasPush = function(){
+  this.domCanvas.width = this.image.width;
+  this.domCanvas.height = this.image.height;
+  this.context().drawImage(image,0,0);
+}
 
-ImageParser.prototype.generateDataMap = function() {
-  var canvas = document.getElementById('canvas');
-  var dataMap = canvas.getContext("2d").getImageData(0,0,canvas.width,canvas.height);
-  return dataMap; 
+ImageParser.prototype.pullDataMap = function() {
+  return this.context.getImageData(0,0,this.domCanvas.width,this.domCanvas.height);
 }
-ImageParser.prototype.refreshPage = function() {
-   var img;
-   img = document.getElementById('image');
-   img.src = this.src;
-}
-ImageParser.prototype.returnImage = function(){
-  return image;
-}
-ImageParser.prototype.drawCanvas = function(){
-  var canvas = document.getElementById('canvas');
-  canvas.width = image.width;
-  canvas.height = image.height;
-  ctx = canvas.getContext("2d");
-  ctx.drawImage(image,0,0);
-  return ctx.getImageData(0,0,canvas.width,canvas.height)
-}
-ImageParser.prototype.redrawCanvas = function(map, fn){
-  var canvas = document.getElementById('canvas');
-  ctx = canvas.getContext("2d");
-  data = fn(map);
-  ctx.putImageData(data,0,0);
-  return data;
-}
-ImageParser.prototype.filterGrayscale = function(data){
-  //can delete this fxn soon
-  //goal: turn every 4 items into x, x, x, 255 where x is the greyscale value
-  _.each(
-    data.data,
-    function(element, index) {
-      if ((index + 1) % 4 === 0){
-        data.data[index] = 255;
-        b = data.data[index - 1];
-        g = data.data[index - 2];
-        r = data.data[index - 3];
-        gray = r/255 * 0.2126 + g/255 * 0.7152 + b/255 * 0.0722;
-        gray255 = Math.round(gray * 255);
-        data.data[index - 1] = gray255;
-        data.data[index - 2] = gray255;
-        data.data[index - 3] = gray255;
-      } else {
-        // data.data[index] = 255 - element; for inversion
-      }
-    });
-  data['monoscale'] = true
-  return data;
+
+ImageParser.prototype.redrawCanvas = function(map){
+  this.context().putImageData(map,0,0);
 }
 
 ImageParser.prototype.grayscaleArray = function(map) {
@@ -86,17 +60,28 @@ ImageParser.prototype.grayscaleArray = function(map) {
   return res;
 }
 
-ImageParser.prototype.calculateNodes = function(data, number) {
-
-  //choose the first node
-  var chooseFirst = function(data) {
-    var res = [];
-    var randomNode = Math.floor(Math.random()*(data.data.length + 1));
-    res.push(randomNode);
-    return res;
+ImageParser.prototype.grayToDataMap = function(grayscaleArray){
+  //need to ensure at first that the new map and the old map are the same size
+  //can do that later
+  var arr;
+  var imageMap = this.generateDataMap();
+  var data = imageMap.data;
+  function gray16to256 (val) {
+    return 16*val;
   }
 
-  return chooseFirst(data);
-
-  
+  if (imageMap.height === grayscaleArray.height && imageMap.width === grayscaleArray.width) {
+    // 0 -> 3, 1 -> 7, 2 -> 11
+    _.each(grayscaleArray.array, function(element, index, list){
+      var a = (index * 4);
+      var b = gray16to256(element);
+      data[a] = b, data[a + 1] = b, data[a + 2] = b;
+      data[a + 3] = 255;
+    });
+  } else {
+    imageMap['error'] = true
+  }
+  console.log(imageMap);
+  return imageMap;
 }
+

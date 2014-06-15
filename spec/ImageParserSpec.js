@@ -1,25 +1,31 @@
 describe("ImageParser", function(){
-  var parser;
+  var parser, src;
   src = "img/17x33multistar.jpg";
   parser = new ImageParser(src);
 
-  it("should refresh the page's image tags", function(){
-    var img;
+  it("should be linked to DOM elements", function(){
+    var canvas, img;
+    canvas = document.getElementById('canvas');
     img = document.getElementById('image');
-    img.src = "invalid src"
-    parser.refreshPage();
-    expect(img.src).toBe(window.location.origin + '/' + src);
+    expect(parser.domImage).toBe(undefined);
+    expect(parser.domCanvas).toBe(undefined);
+    parser.domLink();
+    expect(parser.domImage).toBe(img);
+    expect(parser.domCanvas).toBe(canvas);
   });
 
-  it("should draw the canvas object according to the image size", function(){
-    var canvas, res;
-    canvas = document.getElementById('canvas');
-    canvas.width = 100;
-    canvas.height = 100;
-    res = parser.drawCanvas();
-    expect(canvas.width).toBe(17);
-    expect(canvas.height).toBe(33);    
-    expect(res.width).toBe(17);
+  it("should refresh the DOM image w/ image from itself", function(){
+    parser.domImage.src = "invalid src"
+    parser.imgPush();
+    expect(parser.domImage.src).toBe(window.location.origin + '/' + src);
+  });
+
+  it("should redraw canvas according to image from itself", function(){
+    parser.domCanvas.width = 100;
+    parser.domCanvas.height = 100;
+    expect(parser.domCanvas.width).toBe(100);
+    parser.canvasPush();
+    expect(parser.domCanvas.width).toBe(17);
   });
 
   it("should translate the data map to a simplified grayscale array", function(){
@@ -39,12 +45,29 @@ describe("ImageParser", function(){
     var res, grayscale, newRes;
     res = parser.generateDataMap();
     grayscale = parser.grayscaleArray(res);
-    newRes = parser.grayToDataMap();
+    newRes = parser.grayToDataMap(grayscale);
+    expect(newRes.data.length).toBe(2244);
+    parser.redrawCanvas(newRes);
   });
+
+
+  describe("ImageDrawer", function(){
+
+    var drawData;
+    var drawData = parser.drawer.dataInit();
+
+    it("should choose the first node point", function(){
+      expect(res.nodes.length).toBe(0);
+      res = parser.drawer.firstNode();
+      expect(res.nodes.length).toBe(1);
+    });
+
+  });
+
+});
 
   
 
-});
 
 /*
 it("should calculate the ideal node points", function(){

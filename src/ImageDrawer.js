@@ -1,7 +1,8 @@
-function Song() {
-}
+var _; /*globals*/
 
-Song.prototype.persistFavoriteStatus = function(value) {
-  // something complicated
-  throw new Error("not yet implemented");
-};
+function ImageDrawer() {
+  this.sayHello = function () {
+    console.log('hello!');
+    return 'hi';
+  }
+}
