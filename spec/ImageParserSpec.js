@@ -12,7 +12,7 @@ describe("ImageParser", function(){
   });
 
   it("should draw the canvas object according to the image size", function(){
-    var canvas;
+    var canvas, res;
     canvas = document.getElementById('canvas');
     canvas.width = 100;
     canvas.height = 100;
@@ -22,81 +22,44 @@ describe("ImageParser", function(){
     expect(res.width).toBe(17);
   });
 
-  it("should turn the image monoscale", function(){
-    res = parser.drawCanvas();
-    resNew = parser.redrawCanvas(res, parser.filterGrayscale);
-    expect(resNew['monoscale']).toEqual(true);
+  it("should translate the data map to a simplified grayscale array", function(){
+    //usually requires parser.drawCanvas(), which is called above
+    var res, grayscale;
+    res = parser.generateDataMap();
+    grayscale = parser.grayscaleArray(res);
+    expect(grayscale.array.length).toBe(561);
   });
 
-  it("should calculate the ideal node points", function(){
-    //draw them in red on the canvas?
+
+  it("should reconvert grayscaleArray to canvas image and display", function(){
+    //used to be a fn to simply display grayscale, as seen below...
+    //var res = parser.drawCanvas();
+    //var resNew = parser.redrawCanvas(res, parser.filterGrayscale);
+    //expect(resNew['monoscale']).toEqual(true);
+    var res, grayscale, newRes;
     res = parser.generateDataMap();
+    grayscale = parser.grayscaleArray(res);
+    newRes = parser.grayToDataMap();
+  });
+
+  
+
+});
+
+/*
+it("should calculate the ideal node points", function(){
+    //draw them in red on the canvas?
+    var res = parser.generateDataMap();
     var nodes = parser.calculateNodes(res, 30);
     expect(nodes.length).toEqual(30);
   });
-
-});
-
-
-/*
-
-describe("Player", function() {
-  var player;
-  var song;
-
-  beforeEach(function() {
-    player = new Player();
-    song = new Song();
-  });
-
-  it("should be able to play a Song", function() {
-    player.play(song);
-    expect(player.currentlyPlayingSong).toEqual(song);
-
-    //demonstrates use of custom matcher
-    expect(player).toBePlaying(song);
-  });
-
-  describe("when song has been paused", function() {
-    beforeEach(function() {
-      player.play(song);
-      player.pause();
-    });
-
-    it("should indicate that the song is currently paused", function() {
-      expect(player.isPlaying).toBeFalsy();
-
-      // demonstrates use of 'not' with a custom matcher
-      expect(player).not.toBePlaying(song);
-    });
-
-    it("should be possible to resume", function() {
-      player.resume();
-      expect(player.isPlaying).toBeTruthy();
-      expect(player.currentlyPlayingSong).toEqual(song);
-    });
-  });
-
-  // demonstrates use of spies to intercept and test method calls
-  it("tells the current song if the user has made it a favorite", function() {
-    spyOn(song, 'persistFavoriteStatus');
-
-    player.play(song);
-    player.makeFavorite();
-
-    expect(song.persistFavoriteStatus).toHaveBeenCalledWith(true);
-  });
-
-  //demonstrates use of expected exceptions
-  describe("#resume", function() {
-    it("should throw an exception if song is already playing", function() {
-      player.play(song);
-
-      expect(function() {
-        player.resume();
-      }).toThrowError("song is already playing");
-    });
-  });
-});
-
 */
+ //what's a functional approach here?
+  //translate data map to single grayscale array
+  //three data points: grayscale array, node array, line array
+  //f1: given grayscale array and node array, calculate next best point, return pt
+  //f2: given new point, node array, and line array,
+    //add all new lines to line array
+    //decrease points from grayscale array
+    //add new point to node array
+    //return all 

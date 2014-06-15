@@ -5,6 +5,9 @@ function ImageParser(src) {
   var image = new Image();
   image.src = this.src;
 }
+
+//need to refactor these fxns to be less confused and only do 1 task
+
 ImageParser.prototype.generateDataMap = function() {
   var canvas = document.getElementById('canvas');
   var dataMap = canvas.getContext("2d").getImageData(0,0,canvas.width,canvas.height);
@@ -34,8 +37,8 @@ ImageParser.prototype.redrawCanvas = function(map, fn){
   return data;
 }
 ImageParser.prototype.filterGrayscale = function(data){
+  //can delete this fxn soon
   //goal: turn every 4 items into x, x, x, 255 where x is the greyscale value
-
   _.each(
     data.data,
     function(element, index) {
@@ -57,6 +60,32 @@ ImageParser.prototype.filterGrayscale = function(data){
   return data;
 }
 
+ImageParser.prototype.grayscaleArray = function(map) {
+  var arr;
+  var res = {
+    width: map.width,
+    height: map.height
+  }
+  function toGray16(r,g,b) {
+    return Math.floor((r/255 * 0.2126 + g/255 * 0.7152 + b/255 * 0.0722)*16);
+  }
+  //translate 2244 unit array to 561 unit, based off calculation of each 4
+  arr = _.reduce(map.data, function(memo, value, index, list){
+    if ((index + 1) % 4 === 0){
+      b = list[index - 1];
+      g = list[index - 2];
+      r = list[index - 3];
+      gray = toGray16(r,g,b);
+      //console.log(gray);
+      memo[((index + 1)/4) - 1] = gray;
+    }
+    return memo;
+  } , [] );
+  console.log(arr);
+  res['array'] = arr;
+  return res;
+}
+
 ImageParser.prototype.calculateNodes = function(data, number) {
 
   //choose the first node
@@ -66,68 +95,8 @@ ImageParser.prototype.calculateNodes = function(data, number) {
     res.push(randomNode);
     return res;
   }
-  
-
- 
 
   return chooseFirst(data);
 
-   //draw all lines between nodes (max 4/16 per couple)
-
-
-  //for choosing a new node, choose one that will offer the maximal coverage
-  //that is, take the floor of each and calculate the points? mapreduce?
-  //turn the array into a 
   
-  //now, e.g., how to calculate the 
-  //a defition of an ideal node might be: a point that, when all other n-1 nodes are set,
-  //allows for the most scoring of points. node 1 should be the darkest point, node 2 should be the best 2,
-  //etc. There are 4 possible connections between each node. Lets say 16 is the maximum darkness for each.
-  //so 256/16 = 16 darkness "points" for each pixel drawn on the line. 
-
-
-
-  //what's a functional approach here?
-  //translate data map to single grayscale array
-  //three data points: grayscale array, node array, line array
-  //f1: given grayscale array and node array, calculate next best point, return pt
-  //f2: 
-  //originally have map of pixels, + array of nodes
-  //each iteration will add the nodes, 
-  //also have an array 
 }
-/*
-var c = document.getElementById("canvas");
-    var ctx = c.getContext("2d");
-    var img = new Image();
-    img.onload = function (){
-      ctx.drawImage(img,0,0);
-      var imgData = ctx.getImageData(0,0,150,150);
-      console.log(imgData);
-    }
-    img.src = "img/abc.jpg";
-*/
-
-
-/*function Player() {
-}
-Player.prototype.play = function(song) {
-  this.currentlyPlayingSong = song;
-  this.isPlaying = true;
-};
-
-Player.prototype.pause = function() {
-  this.isPlaying = false;
-};
-
-Player.prototype.resume = function() {
-  if (this.isPlaying) {
-    throw new Error("song is already playing");
-  }
-
-  this.isPlaying = true;
-};
-
-Player.prototype.makeFavorite = function() {
-  this.currentlyPlayingSong.persistFavoriteStatus(true);
-};*/
