@@ -28,7 +28,12 @@ describe("ImageParser", function(){
     expect(resNew['monoscale']).toEqual(true);
   });
 
-  
+  it("should calculate the ideal node points", function(){
+    //draw them in red on the canvas?
+    res = parser.generateDataMap();
+    var nodes = parser.calculateNodes(res, 30);
+    expect(nodes.length).toEqual(30);
+  });
 
 });
 
