@@ -1,6 +1,6 @@
-describe("ImageParser", function(){
+describe("ImageParser init components", function(){
   var parser, src;
-  src = "img/17x33multistar.jpg";
+  src = "img/10x10circle.jpg";
   parser = new ImageParser(src);
 
   it("should be linked to DOM elements", function(){
@@ -25,43 +25,74 @@ describe("ImageParser", function(){
     parser.domCanvas.height = 100;
     expect(parser.domCanvas.width).toBe(100);
     parser.canvasPush();
-    expect(parser.domCanvas.width).toBe(17);
+    expect(parser.domCanvas.width).toBe(10);
+  });
+
+});
+
+describe("ImageParser translate components", function(){
+
+  var parser, src;
+  src = "img/25x25star.jpg";
+  parser = new ImageParser(src);
+
+  it("should be able to be initiated with init fxn", function(){
+      parser.initialize();
   });
 
   it("should translate the data map to a simplified grayscale array", function(){
-    //usually requires parser.drawCanvas(), which is called above
-    var res, grayscale;
-    res = parser.generateDataMap();
+    res = parser.pullDataMap();
     grayscale = parser.grayscaleArray(res);
-    expect(grayscale.array.length).toBe(561);
+    expect(grayscale.array.length).toBe(625);
   });
 
 
   it("should reconvert grayscaleArray to canvas image and display", function(){
-    //used to be a fn to simply display grayscale, as seen below...
-    //var res = parser.drawCanvas();
-    //var resNew = parser.redrawCanvas(res, parser.filterGrayscale);
-    //expect(resNew['monoscale']).toEqual(true);
     var res, grayscale, newRes;
-    res = parser.generateDataMap();
+    res = parser.pullDataMap();
     grayscale = parser.grayscaleArray(res);
     newRes = parser.grayToDataMap(grayscale);
-    expect(newRes.data.length).toBe(2244);
-    parser.redrawCanvas(newRes);
+    expect(newRes.data.length).toBe(2500);
+    parser.pushToCanvas(newRes);
+  });
+});
+
+describe("Integration w/ ImageDrawer components", function(){
+
+  var parser, src, drawData;
+  src = "img/17x33multistar.jpg";
+  parser = new ImageParser(src);
+  drawData = {};
+
+  it("should initialize and add info to new drawData object", function(){
+      parser.initialize();
+      parser.pushDrawData(drawData);
+      //this apparently needs to be put in an "it" block. it will run before 
+      //everything else if its in the block above, and will run before DOM loads
   });
 
+  it("should be able to pull grayscale array from canvas with one command", function(){
+    expect(parser.pullGray().array.length).toBe(561);
+  });
 
-  describe("ImageDrawer", function(){
+  it("should be able to push grayscale array to canvas with one command", function(){
+    res = parser.pushGray(parser.pullGray());
+    expect(res.data.length).toBe(2244);
+  });
 
-    var drawData;
-    var drawData = parser.drawer.dataInit();
+  it("should generate a list of optimal nodes", function(){
+    expect(drawData.nodes.length).toBe(0);
+    drawData = parser.drawer.populateNodes(drawData, 30);
+    expect(drawData.nodes.length).toBe(30);
+  });
 
-    it("should choose the first node point", function(){
-      expect(res.nodes.length).toBe(0);
-      res = parser.drawer.firstNode();
-      expect(res.nodes.length).toBe(1);
-    });
+  it("should calculate the top lines to draw", function(){
+    drawData = parser.drawer.nextPt(drawData);
+    expect(drawData.nodes.length).toBe(2);
+  });
 
+  it("should add a line, subtract from each px along the vector", function(){
+    
   });
 
 });

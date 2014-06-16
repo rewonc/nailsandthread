@@ -17,6 +17,12 @@ function ImageParser(src) {
   }
 }
 
+ImageParser.prototype.initialize = function(){
+    this.domLink();
+    this.imgPush();
+    this.canvasPush();
+}
+
 ImageParser.prototype.imgPush = function() {
    this.domImage.src = this.src;
 }
@@ -27,10 +33,10 @@ ImageParser.prototype.canvasPush = function(){
 }
 
 ImageParser.prototype.pullDataMap = function() {
-  return this.context.getImageData(0,0,this.domCanvas.width,this.domCanvas.height);
+  return this.context().getImageData(0,0,this.domCanvas.width,this.domCanvas.height);
 }
 
-ImageParser.prototype.redrawCanvas = function(map){
+ImageParser.prototype.pushToCanvas = function(map){
   this.context().putImageData(map,0,0);
 }
 
@@ -55,7 +61,6 @@ ImageParser.prototype.grayscaleArray = function(map) {
     }
     return memo;
   } , [] );
-  console.log(arr);
   res['array'] = arr;
   return res;
 }
@@ -64,7 +69,8 @@ ImageParser.prototype.grayToDataMap = function(grayscaleArray){
   //need to ensure at first that the new map and the old map are the same size
   //can do that later
   var arr;
-  var imageMap = this.generateDataMap();
+  //generate a map from canvas
+  var imageMap = this.pullDataMap();
   var data = imageMap.data;
   function gray16to256 (val) {
     return 16*val;
@@ -81,7 +87,27 @@ ImageParser.prototype.grayToDataMap = function(grayscaleArray){
   } else {
     imageMap['error'] = true
   }
-  console.log(imageMap);
   return imageMap;
 }
+
+ImageParser.prototype.pullGray = function() {
+  return this.grayscaleArray(this.pullDataMap());
+}
+
+ImageParser.prototype.pushGray = function(map) {
+  var res;
+  res = this.grayToDataMap(map);
+  this.pushToCanvas(res);
+  return res;
+}
+
+ImageParser.prototype.pushDrawData = function(ddata) {
+  ddata.pixels = this.pullGray().array;
+  ddata.nodes = [];
+  ddata.lines = [];
+  ddata.width = this.image.width;
+  ddata.height = this.image.height;
+  return ddata
+}
+
 
