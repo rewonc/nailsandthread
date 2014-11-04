@@ -1,8 +1,20 @@
 'use strict';
 
 var Parser = {
-  getRGB: function(){
-
+  getRGB: function(canvas, url){
+    var img = new Image();
+    var context = canvas.getContext('2d');
+    var result = new Promise(function(resolve, reject){
+      img.onload=function(){
+        canvas.width = img.width;
+        canvas.height = img.height;
+        context.drawImage(img,0,0);
+        resolve(context.getImageData(0,0,canvas.width,canvas.height));
+      }
+    });
+    
+    img.src = url;
+    return result;
   }
 };
 
@@ -16,9 +28,6 @@ var Grid = {
 };
 
 var Canvas = {
-  generate: function(grid){
-
-  },
   render: function(canvas, $element){
 
   }

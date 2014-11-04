@@ -26,8 +26,16 @@
   <script type="text/javascript">
   'use strict';
   $(function(){
+    //These are the canvases on the page
+    var source = document.getElementById('source');
+    var target = document.getElementById('target')
+
     //We will mutate these arrays in place
-    var pixels = Parser.getRGB('img/man.jpg');
+    var pixels = Parser.getRGB(source, 'img/man.jpg');
+    console.log(pixels);
+    pixels.then(function(val){
+      console.log(val);
+    });
     var grid = Grid.generate({width: 35, height: 54});
 
     //Initial settings
@@ -47,8 +55,7 @@
     drawColor("blue", MAX_LINES_DRAWN_PER_THREAD);
 
     //Render the grid to the canvas
-    var canvas = Canvas.generate(grid);
-    Canvas.render(canvas, $('#canvas'));
+    Canvas.render(grid, target);
   });
  
  /* load image and convert to array */
@@ -91,12 +98,12 @@ ctx.putImageData(imgData,0,0);*/
 </head>
 
 <body>
-  <h2>Image to use:</h2>
-  <img id="image" src="img/man.jpg"></img>
+  <h2>Source canvas:</h2>
+  <canvas id="source"></canvas>
 
-  <p>Canvas displayed below</p>
+  <p>Drawing canvas:</p>
 
-  <canvas id="canvas"></canvas>
+  <canvas id="target"></canvas>
 
 </body>
 
