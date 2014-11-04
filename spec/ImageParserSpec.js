@@ -63,6 +63,7 @@ describe("Integration w/ ImageDrawer components", function(){
   src = "img/17x33multistar.jpg";
   parser = new ImageParser(src);
   drawData = {};
+  nodes = []
 
   it("should initialize and add info to new drawData object", function(){
       parser.initialize();
@@ -82,17 +83,40 @@ describe("Integration w/ ImageDrawer components", function(){
 
   it("should generate a list of optimal nodes", function(){
     expect(drawData.nodes.length).toBe(0);
-    drawData = parser.drawer.populateNodes(drawData, 30);
-    expect(drawData.nodes.length).toBe(30);
+    drawData.nodes = parser.drawer.populateNodes(drawData, 20);
+    expect(drawData.nodes.length).toBe(20);
   });
 
-  it("should calculate the top lines to draw", function(){
-    drawData = parser.drawer.nextPt(drawData);
-    expect(drawData.nodes.length).toBe(2);
+  it("should map optimal nodes to canvas", function(){
+    //draw in red
+    console.log(drawData);
+    var res = parser.ddataToDataMap(drawData);
+    console.log(res);
+    parser.pushToCanvas(res);
+
   });
 
-  it("should add a line, subtract from each px along the vector", function(){
+  it("should be able to blow up small images on canvas", function(){
+    var canvas = document.getElementById('canvas');
+    var ctx = parser.context();
+    ctx.scale(4,4);
+    console.log(ctx);
+    console.log(parser);
+    ctx.drawImage(ctx.canvas, 0, 0);
+    //to fix
+  });
+
+  it("for a number of lines, should generate a list of the top lines as well as percent coverage", function(){
+    //drawData = parser.drawer.nextPt(drawData);
+    //expect(drawData.nodes.length).toBe(2);
+  });
+
+  it("should draw those lines on the canvas", function(){
     
+  });
+
+  it("alternatively, if that's too computationally intensive, do it stepwise through iteration", function(){
+
   });
 
 });

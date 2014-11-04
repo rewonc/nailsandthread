@@ -1,14 +1,131 @@
-var _; /*globals*/
+var _; 
 
 function ImageDrawer() {
 
   this.populateNodes = function(data, number) {
+    var spacing, map, nodes, sqrt;
     //use spacing function, select the darkest nodes, w/ the exception of
     //a 5x5 radius (or sthing determined by size of img over number~like the area)
-    num = Math.floor(Math.random()*(data.pixels.length));
-    data.nodes.push(num);
-    return data;
+    
+    //get the width and hight of the spacing
+    spacing = Math.floor(data.pixels.length / number);
+    sqrt = Math.floor(Math.sqrt(spacing));
+    console.log(sqrt);
+    //ok. lets try a diff approach. 
+    //how about we find the maximums. It finds the max, then finds the next, and if its too
+    //close to another, it skips it. 
+
+    //lets first map the array to something that includes the original order
+    map = _.map(data.pixels, function(val, index){
+      return [index, val]
+    });
+    nodes = []
+
+    while (nodes.length < number){
+      map = mapMaxToNodes(map, nodes);
+    }
+    return nodes;
+
+    function mapMaxToNodes (map, nodes) {
+      var a = _.max(map, function(node){ 
+        return node[1] 
+      });
+      map = _.partition(map, isAdjacent)[1];
+      nodes.push(a);
+      return map;
+
+      function isAdjacent(val) {
+        if (val[0] === a[0]) {
+          return true
+        } else if ( calculateAdjacency(a[0],val[0],spacing) ) {
+          return true
+        } else {
+          return false;
+        }
+      }
+    }
+
+    function calculateAdjacency(index, index2, spacing) {
+      switch(sqrt) {
+        case 0: 
+          return false;
+        case 1:
+          return false;
+        case 2:
+          if (Math.abs(index2 - index) < 2) {
+            return true;
+          } else {
+            return false;
+          }
+        case 3:
+          if (Math.abs(index2 - index) < 2) {
+            return true;
+          } else if (Math.abs(Math.abs(index2 - index) - data.width) < 2) {
+            return true;
+          } else {
+            return false;
+          }
+        case 4:
+          if (Math.abs(index2 - index) < 3) {
+            return true
+          } else if (Math.abs(Math.abs(index2 - index) - data.width) < 2) {
+            return true
+          } else if (Math.abs(Math.abs(index2 - index) - 2*data.width) < 2) {
+            return true
+          } else {
+            return false;
+          }
+        case 5:
+          if (Math.abs(index2 - index) < 3) {
+            return true
+          } else if (Math.abs(Math.abs(index2 - index) - data.width) < 3) {
+            return true
+          } else if (Math.abs(Math.abs(index2 - index) - 2*data.width) < 3) {
+            return true
+          } else {
+            return false;
+          }
+        case 6:
+          if (Math.abs(index2 - index) < 4) {
+            return true
+          } else if (Math.abs(Math.abs(index2 - index) - data.width) < 3) {
+            return true
+          } else if (Math.abs(Math.abs(index2 - index) - 2*data.width) < 3) {
+            return true
+          } else if (Math.abs(Math.abs(index2 - index) - 3*data.width) < 3) {
+            return true
+          } else {
+            return false;
+          }
+        case 7:
+          if (Math.abs(index2 - index) < 4) {
+            return true
+          } else if (Math.abs(Math.abs(index2 - index) - data.width) < 4) {
+            return true
+          } else if (Math.abs(Math.abs(index2 - index) - 2*data.width) < 4) {
+            return true
+          } else if (Math.abs(Math.abs(index2 - index) - 3*data.width) < 4) {
+            return true
+          } else {
+            return false;
+          }
+        default:
+          return false;
+
+      }
+      //first try gross before adjusting for edges
+      //e.g. pixel 121 and 147
+      //pixel math: first ring is 9, 16, 25, 
+
+      //can hardcode for 1-10 circles, then just say not adjacent.
+      //100 pixels is prolly enough resolution. 
+
+    }
+
+    
+
   }
+
   this.nextPt = function(data) {
     //need to assess, graphically, what makes the most sense.
     //node num 44. 

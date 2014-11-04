@@ -39,6 +39,56 @@ ImageParser.prototype.pullDataMap = function() {
 ImageParser.prototype.pushToCanvas = function(map){
   this.context().putImageData(map,0,0);
 }
+ImageParser.prototype.ddataToDataMap = function(ddata){
+  var arr;
+  //generate a map from canvas
+  var imageMap = this.pullDataMap();
+  var data = imageMap.data;
+
+  designateNodes(ddata);
+
+  console.log(ddata);
+  
+  function designateNodes (ddata) {
+    _.each(ddata.nodes, function(element, index, list) {
+      ddata.pixels[element[0]] = -1;
+    });
+  }
+
+  function gray16to256 (val) {
+    if (val === -1 ) {
+      return -1
+    } else {
+      return 16*val;
+    }
+  }
+
+  if (imageMap.height === ddata.height && imageMap.width === ddata.width) {
+    // 0 -> 3, 1 -> 7, 2 -> 11
+    _.each(ddata.pixels, function(element, index, list){
+      var a = (index * 4);
+      var b = gray16to256(element);
+      if (b > 0) {
+        data[a] = b, data[a + 1] = b, data[a + 2] = b;
+        data[a + 3] = 255;
+      } else {
+        data[a] = 255, data[a + 1] = 0, data[a + 2] = 0;
+        data[a + 3] = 255;
+      }
+    });
+  } else {
+    imageMap['error'] = true
+  }
+
+  return imageMap;
+}
+
+ImageParser.prototype.pushNodesToCanvas = function(ddata) {
+  var res;
+  res = this.grayToDataMap(map);
+  this.pushToCanvas(res);
+  return res;
+}
 
 ImageParser.prototype.grayscaleArray = function(map) {
   var arr;
