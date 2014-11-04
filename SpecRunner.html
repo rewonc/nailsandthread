@@ -18,13 +18,44 @@
 
   <script type="text/javascript" src="src/ImageDrawer.js"></script>
   <script type="text/javascript" src="src/ImageParser.js"></script>
+  <script type="text/javascript" src="src/naive.js"></script>
+
+
+  <script type="text/javascript" src="spec/SpecHelper.js"></script>
+  <script type="text/javascript" src="spec/ImageParserSpec.js"></script>
 
   <script type="text/javascript">
   $(function(){
-    
+    //We will mutate these arrays in place
+    var pixels = Parser.getRGB('path/to/source.jpg');
+    var grid = Grid.generate({width: 35, height: 54});
+
+    //How many lines do I want to draw? When I'm drawing the actual portrait, let's assume I can do 1 line per 5 seconds 
+    //and want to spend 30 minutes per day for 2 weeks. That means ~5000 lines maximum. 
+    //var MAX_LINES_DRAWN = 5000
+    var MAX_LINES_DRAWN_PER_THREAD = 1800;
+
+    var drawColor = function(color, count, node){
+      var origin = node || Math.random()*pixels.length;
+      var result = Grid.findNextPoint(origin, grid, pixels, color);
+      if (result.next)      {return drawColor(color, count - 1, result.next);    }
+      else                  {return drawColor(color, count + 1, result.previous); }
+    }
+
+    //perform our calculations
+    drawColor("red", MAX_LINES_DRAWN_PER_THREAD);
+    drawColor("green", MAX_LINES_DRAWN_PER_THREAD);
+    drawColor("blue", MAX_LINES_DRAWN_PER_THREAD);
+
+    //render the grid to the canvas
+    var canvas = Canvas.generate(grid);
+    Canvas.render(canvas, $('#canvas'));
   });
  
-  /*
+ /* load image and convert to array */
+
+
+/* commented out
 var imgData=ctx.getImageData(0,0,c.width,c.height);
 // invert colors
 for (var i=0;i<imgData.data.length;i+=4)
@@ -44,7 +75,7 @@ ctx.putImageData(imgData,0,0);
   });
 */
 
-/*
+/* commented in
 var imgData=ctx.getImageData(0,0,c.width,c.height);
 // invert colors
 for (var i=0;i<imgData.data.length;i+=4)
@@ -54,23 +85,20 @@ for (var i=0;i<imgData.data.length;i+=4)
   imgData.data[i+2]=255-imgData.data[i+2];
   imgData.data[i+3]=255;
   }
-ctx.putImageData(imgData,0,0);
-*/
-  </script>
+ctx.putImageData(imgData,0,0);*/
 
-  <!-- Jasmine spec files -->
-  <script type="text/javascript" src="spec/SpecHelper.js"></script>
-  <script type="text/javascript" src="spec/ImageParserSpec.js"></script>
+  </script>
 
 </head>
 
 <body>
-<h2>Image to use:</h2>
-<img id="image" src="img/10x10circle.jpg" />
+  <h2>Image to use:</h2>
+  <img id="image"></img>
 
-<p>Canvas displayed below</p>
+  <p>Canvas displayed below</p>
 
-<canvas width="300" height="225" id="canvas"></canvas>
+  <canvas id="canvas"></canvas>
 
 </body>
+
 </html>
