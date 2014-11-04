@@ -16,25 +16,24 @@
   <script type="text/javascript" src="lib/underscore.js"></script>
   <script type="text/javascript" src="lib/jquery.js"></script>
 
-  <script type="text/javascript" src="src/ImageDrawer.js"></script>
-  <script type="text/javascript" src="src/ImageParser.js"></script>
-  <script type="text/javascript" src="src/naive.js"></script>
+  <!--<script type="text/javascript" src="src/ImageDrawer.js"></script>
+  <script type="text/javascript" src="src/ImageParser.js"></script>-->
+  <script type="text/javascript" src="src/nailsandthread.js"></script>
 
 
-  <script type="text/javascript" src="spec/SpecHelper.js"></script>
-  <script type="text/javascript" src="spec/ImageParserSpec.js"></script>
+  <!--<script type="text/javascript" src="spec/ImageParserSpec.js"></script>-->
 
   <script type="text/javascript">
+  'use strict';
   $(function(){
     //We will mutate these arrays in place
-    var pixels = Parser.getRGB('path/to/source.jpg');
+    var pixels = Parser.getRGB('img/man.jpg');
     var grid = Grid.generate({width: 35, height: 54});
 
-    //How many lines do I want to draw? When I'm drawing the actual portrait, let's assume I can do 1 line per 5 seconds 
-    //and want to spend 30 minutes per day for 2 weeks. That means ~5000 lines maximum. 
-    //var MAX_LINES_DRAWN = 5000
+    //Initial settings
     var MAX_LINES_DRAWN_PER_THREAD = 1800;
 
+    //Iterative function
     var drawColor = function(color, count, node){
       var origin = node || Math.random()*pixels.length;
       var result = Grid.findNextPoint(origin, grid, pixels, color);
@@ -42,12 +41,12 @@
       else                  {return drawColor(color, count + 1, result.previous); }
     }
 
-    //perform our calculations
+    //Initiate for each thread
     drawColor("red", MAX_LINES_DRAWN_PER_THREAD);
     drawColor("green", MAX_LINES_DRAWN_PER_THREAD);
     drawColor("blue", MAX_LINES_DRAWN_PER_THREAD);
 
-    //render the grid to the canvas
+    //Render the grid to the canvas
     var canvas = Canvas.generate(grid);
     Canvas.render(canvas, $('#canvas'));
   });
@@ -93,7 +92,7 @@ ctx.putImageData(imgData,0,0);*/
 
 <body>
   <h2>Image to use:</h2>
-  <img id="image"></img>
+  <img id="image" src="img/man.jpg"></img>
 
   <p>Canvas displayed below</p>
 
