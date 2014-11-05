@@ -42,7 +42,7 @@ var Grid = {
     //else, decrement the value of all the arrays
     //return the next node
     console.log(pixelLine);
-    return "nextPt"
+    return "nextPt";
   },
   helpers: {
     getRandom: function(grid){
@@ -74,10 +74,10 @@ var Grid = {
       var nextImg = Grid.helpers.scaleToImage(rcNext, grid.width, grid.height, pixels.width, pixels.height);
       var slope = Grid.helpers.findSlope(originImg, nextImg);
       console.log(JSON.stringify(slope));
-      return "pixels";
 
-      //console.log("origin: " + origin + "//" + JSON.stringify(rcOrigin) + "//" + JSON.stringify(originImg));
-      //console.log("next: " + next + "//" + JSON.stringify(rcNext) + "//" + JSON.stringify(nextImg));
+      console.log("origin: " + origin + "//" + JSON.stringify(rcOrigin) + "//" + JSON.stringify(originImg));
+      console.log("next: " + next + "//" + JSON.stringify(rcNext) + "//" + JSON.stringify(nextImg));
+      return "pixels";
       /*console.log("grid size: " + gridLength);
       console.log("grid dimensons: " + grid.width + 'x' + grid.height);
       console.log("pixel size: " + pixelLength);
@@ -85,13 +85,29 @@ var Grid = {
       console.log("ratio: " + pixelLength / gridLength); */
     },
     findSlope: function(origin, next){
+      var rowDiff = next.row - origin.row;
+      var colDiff = next.column - origin.column;
+      var startWith, increment, slope, count;
+      if (Math.abs(rowDiff) >= Math.abs(colDiff)) {
+        startWith = "rows";
+        increment = rowDiff < 0 ? -1 : 1;
+        slope = colDiff/rowDiff*increment;
+        count = Math.abs(rowDiff);
+      } else {
+        startWith = "columns";
+        increment = colDiff < 0 ? -1 : 1;
+        slope = rowDiff/colDiff*increment;
+        count = Math.abs(colDiff);
+      }
+      return {start_with: startWith, increment: increment, slope: slope, count: count};
+
 
     },
     convertToRC: function (point, width, height){
-      return {row: Math.floor(point / width), column: point % Math.floor(point / width)}
+      return {row: Math.floor(point / width), column: point % Math.floor(point / width)};
     },
     scaleToImage: function(rcPoint, width1, height1, width2, height2){
-      return {row: height2/height1*rcPoint.row, column: width2/width1*rcPoint.column}
+      return {row: height2/height1*rcPoint.row, column: width2/width1*rcPoint.column};
     }
   }
 };
