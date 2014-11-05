@@ -30,32 +30,37 @@
     var source = document.getElementById('source');
     var target = document.getElementById('target')
 
-    //We will mutate these arrays in place
-    var pixels = Parser.getRGB(source, 'img/man.jpg');
-    console.log(pixels);
-    pixels.then(function(val){
-      console.log(val);
-    });
+    //pixelLoader is a promise that will populate pixels when the image loads
+    var pixelLoader = Parser.getRGB(source, 'img/man.jpg');
+    var pixels;
+    //grid is a (W*H)x(W*H) matrix, and tells us which node is linked to which node. It requires memory equivalent to (WxH)^2, so adjacency lists are better for large images.
     var grid = Grid.generate({width: 35, height: 54});
-
+    console.log(grid);
     //Initial settings
     var MAX_LINES_DRAWN_PER_THREAD = 1800;
 
     //Iterative function
     var drawColor = function(color, count, node){
-      var origin = node || Math.random()*pixels.length;
+      var origin = node || Math.floor(Math.random()*grid.size);
+      console.log("origin: " + origin)
       var result = Grid.findNextPoint(origin, grid, pixels, color);
       if (result.next)      {return drawColor(color, count - 1, result.next);    }
       else                  {return drawColor(color, count + 1, result.previous); }
     }
+    
+    //start the iterating functions after the image loads
+    pixelLoader.then(function(val){
+      
+      pixels = val;
+      //Initiate for each thread
+      drawColor("red", MAX_LINES_DRAWN_PER_THREAD);
+      drawColor("green", MAX_LINES_DRAWN_PER_THREAD);
+      drawColor("blue", MAX_LINES_DRAWN_PER_THREAD);
 
-    //Initiate for each thread
-    drawColor("red", MAX_LINES_DRAWN_PER_THREAD);
-    drawColor("green", MAX_LINES_DRAWN_PER_THREAD);
-    drawColor("blue", MAX_LINES_DRAWN_PER_THREAD);
-
-    //Render the grid to the canvas
-    Canvas.render(grid, target);
+      //Render the grid to the canvas
+      Canvas.render(grid, target);
+    });
+      
   });
  
  /* load image and convert to array */
