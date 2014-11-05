@@ -68,8 +68,13 @@ var Grid = {
       var gridLength = grid.size;
       var pixelLength = pixels.data.length / 4;
       if (pixelLength % gridLength !== 0) console.log('Warning: Grid/pixel ratio off balance. Balance for better results.');
-      console.log("origin: " + origin + "//" + JSON.stringify(Grid.helpers.convertToRC(origin, grid.width, grid.height)));
-      console.log("next: " + next + "//" + JSON.stringify(Grid.helpers.convertToRC(next, grid.width, grid.height)));
+      var rcOrigin = Grid.helpers.convertToRC(origin, grid.width, grid.height);
+      var rcNext = Grid.helpers.convertToRC(next, grid.width, grid.height);
+      var originImg = Grid.helpers.scaleToImage(rcOrigin, grid.width, grid.height, pixels.width, pixels.height);
+      var nextImg= Grid.helpers.scaleToImage(rcNext, grid.width, grid.height, pixels.width, pixels.height);
+
+      console.log("origin: " + origin + "//" + JSON.stringify(rcOrigin) + "//" + JSON.stringify(originImg));
+      console.log("next: " + next + "//" + JSON.stringify(rcNext) + "//" + JSON.stringify(nextImg));
       /*console.log("grid size: " + gridLength);
       console.log("grid dimensons: " + grid.width + 'x' + grid.height);
       console.log("pixel size: " + pixelLength);
@@ -78,6 +83,9 @@ var Grid = {
     },
     convertToRC: function (point, width, height){
       return {row: Math.floor(point / width), column: point % Math.floor(point / width)}
+    },
+    scaleToImage: function(rcPoint, width1, height1, width2, height2){
+      return {row: height2/height1*rcPoint.row, column: width2/width1*rcPoint.column}
     }
   }
 };
