@@ -68,7 +68,8 @@ var Grid = {
       var gridLength = grid.size;
       var pixelLength = pixels.data.length / 4;
       if (pixelLength % gridLength !== 0) console.log('Warning: Grid/pixel ratio off balance. Balance for better results.');
-      return "pixelLine";
+      console.log("origin: " + origin + "//" + JSON.stringify(Grid.helpers.convertToRC(origin, grid.width, grid.height)));
+      console.log("next: " + next + "//" + JSON.stringify(Grid.helpers.convertToRC(next, grid.width, grid.height)));
       /*console.log("grid size: " + gridLength);
       console.log("grid dimensons: " + grid.width + 'x' + grid.height);
       console.log("pixel size: " + pixelLength);

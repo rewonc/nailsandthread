@@ -54,8 +54,7 @@
     var drawColor = function(color, count, node){
       var origin = node || Math.floor(Math.random()*grid.size);
       var result = Grid.findNextPoint(origin, grid, pixels, color, LINE_THICKNESS);
-      console.log("origin: " + origin);
-      console.log("node: " + result);
+      console.log("result: " + result);
       //if (result.next)      {return drawColor(color, count - 1, result.next);    }
       //else                  {return drawColor(color, count + 1, result.previous); }
     }
