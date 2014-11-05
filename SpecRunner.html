@@ -39,7 +39,15 @@
     //Initial settings
     var MAX_LINES_DRAWN_PER_THREAD = 1800;
     var LINE_THICKNESS = 50; 
-    //max lines: how many total lines should be drawn per color
+    //max lines: how many total lines should be drawn per color?
+    //If we estimate around 7x7 pixels per inch, maybe 4 thin threads would
+    //cover each pixel. So each thread is 256/4 or 64 px in intensity.
+    //32 should be the cutoff. If the intensity is > 32, you can draw one+ lines.
+    //if below 32, draw none.
+    //You should probably reduce the nodes to just whats drawable. 
+    //If you check levels on pixlr you can see that the majority of the pixels
+    //are in the low intensity range.
+    //Also need to normalize the levels of the image.
     //how much each line will decrement the RGB pixel values (scale of 0-255)
 
     //Iterative function
@@ -47,7 +55,7 @@
       var origin = node || Math.floor(Math.random()*grid.size);
       var result = Grid.findNextPoint(origin, grid, pixels, color, LINE_THICKNESS);
       console.log("origin: " + origin);
-      console.log(result);
+      console.log("node: " + result);
       //if (result.next)      {return drawColor(color, count - 1, result.next);    }
       //else                  {return drawColor(color, count + 1, result.previous); }
     }

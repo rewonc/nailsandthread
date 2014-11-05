@@ -33,14 +33,15 @@ var Grid = {
     return grid;
   },
   findNextPoint: function(origin, grid, pixels, color, thickness){
-    var result = "next: " + selectNext(origin, grid);
-    //randomly select the next point
-    //check if it is populated(if so, restart)
+    var next = selectNext(origin, grid);
+    if (next === false) return getLast();
+    var pixelLine = getPixels(origin, next, grid, pixels);
     //check if it is feasible(if not, restart)
     //if restart more than 10 times, choose another path
     //else, decrement the value of all the arrays
     //return the next node
-    return result;
+    console.log(result);
+
     function getRandom(grid){
       return Math.floor(Math.random()*grid.size);
     }
@@ -55,6 +56,18 @@ var Grid = {
       var x = getRandom(grid);
       if(!checkPopulated(origin, x)) return x;
       return selectNext(origin, grid, counter + 1);
+    }
+    function getLast(){
+      console.log("getLast triggered--Needs implementation!!!");
+      return origin;
+    }
+    function getPixels(origin, next, grid, pixels){
+      var gridLength = grid.size;
+      var pixelLength = pixels.data.length / 4;
+      if (pixelLength % gridLength !== 0) console.log('Warning: Grid/pixel ratio off balance. Balance for better results.');
+      console.log("grid size: " + gridLength);
+      console.log("pixel size: " + pixelLength);
+      console.log("ratio: " + pixelLength / gridLength); 
     }
   }
 };
