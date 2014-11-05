@@ -73,16 +73,37 @@ var Grid = {
       var originImg = Grid.helpers.scaleToImage(rcOrigin, grid.width, grid.height, pixels.width, pixels.height);
       var nextImg = Grid.helpers.scaleToImage(rcNext, grid.width, grid.height, pixels.width, pixels.height);
       var slope = Grid.helpers.findSlope(originImg, nextImg);
-      console.log(JSON.stringify(slope));
+       
+      return Grid.helpers.pixellate(origin, next, slope, color, pixels)
+      
+      
 
-      console.log("origin: " + origin + "//" + JSON.stringify(rcOrigin) + "//" + JSON.stringify(originImg));
-      console.log("next: " + next + "//" + JSON.stringify(rcNext) + "//" + JSON.stringify(nextImg));
-      return "pixels";
+      //console.log("origin: " + origin + "//" + JSON.stringify(rcOrigin) + "//" + JSON.stringify(originImg));
+      //console.log("next: " + next + "//" + JSON.stringify(rcNext) + "//" + JSON.stringify(nextImg));
       /*console.log("grid size: " + gridLength);
       console.log("grid dimensons: " + grid.width + 'x' + grid.height);
       console.log("pixel size: " + pixelLength);
       console.log("pixel dimensions: " + pixels.width + 'x' + pixels.height);
       console.log("ratio: " + pixelLength / gridLength); */
+    },
+    pixellate: function(origin, next, slope, color, pixels){
+      //slope in form: {"start_with":"rows","increment":1,"slope":0.6341463414634146,"count":410} 
+      console.log(JSON.stringify(slope));
+      if (slope.increment === 1){
+        if(slope.start_with === "rows"){
+          for(var i=0; i<slope.count;i++){
+
+          }
+        } else{
+
+        }
+      } else {
+        if(slope.start_with === "rows"){
+
+        } else{
+          
+        }
+      }
     },
     findSlope: function(origin, next){
       var rowDiff = next.row - origin.row;
