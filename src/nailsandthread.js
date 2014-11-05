@@ -22,7 +22,7 @@ var Parser = {
 var Grid = {
   generate: function(options) {
     //try an adjacency matrix for this for quick scanning
-    var grid = {}
+    var grid = {};
     grid.rows = [];
     grid.size = options.height*options.width;
     grid.width = options.width;
@@ -33,45 +33,54 @@ var Grid = {
     return grid;
   },
   findNextPoint: function(origin, grid, pixels, color, thickness){
-    var next = selectNext(origin, grid);
-    if (next === false) return getLast();
-    var pixelLine = getPixels(origin, next, grid, pixels);
+    var next = Grid.helpers.selectNext(origin, grid, color);
+    console.log("next: " + next);
+    if (next === false) return Grid.helpers.getLast(origin);
+    var pixelLine = Grid.helpers.getPixels(origin, next, grid, pixels, color);
     //check if it is feasible(if not, restart)
     //if restart more than 10 times, choose another path
     //else, decrement the value of all the arrays
     //return the next node
-    console.log(result);
-
-    function getRandom(grid){
+    console.log(pixelLine);
+    return "nextPt"
+  },
+  helpers: {
+    getRandom: function(grid){
       return Math.floor(Math.random()*grid.size);
-    }
-    function checkPopulated(origin, target){
+    },
+    checkPopulated: function (origin, target, grid, color){
       if (origin === target) return true;
       if (grid.rows[origin][target] && color in grid.rows[origin][target]) return true;
       return false;
-    }
-    function selectNext(origin, grid, counter){
+    },
+    selectNext: function (origin, grid, color, counter){
       counter = counter || 0;
       if(counter > 10) return false;
-      var x = getRandom(grid);
-      if(!checkPopulated(origin, x)) return x;
-      return selectNext(origin, grid, counter + 1);
-    }
-    function getLast(){
+      var x = Grid.helpers.getRandom(grid);
+      if(!Grid.helpers.checkPopulated(origin, x, grid, color)) return x;
+      return Grid.helpers.selectNext(origin, grid, color, counter + 1);
+    },
+    getLast: function (origin){
       console.log("getLast triggered--Needs implementation!!!");
       return origin;
-    }
-    function getPixels(origin, next, grid, pixels){
+    },
+    getPixels: function(origin, next, grid, pixels, color){
       var gridLength = grid.size;
       var pixelLength = pixels.data.length / 4;
       if (pixelLength % gridLength !== 0) console.log('Warning: Grid/pixel ratio off balance. Balance for better results.');
-      console.log("grid size: " + gridLength);
+      return "pixelLine";
+      /*console.log("grid size: " + gridLength);
+      console.log("grid dimensons: " + grid.width + 'x' + grid.height);
       console.log("pixel size: " + pixelLength);
-      console.log("ratio: " + pixelLength / gridLength); 
+      console.log("pixel dimensions: " + pixels.width + 'x' + pixels.height);
+      console.log("ratio: " + pixelLength / gridLength); */
+    },
+    convertToRC: function (point, width, height){
+      return {row: Math.floor(point / width), column: point % Math.floor(point / width)}
     }
   }
 };
-
+    
 var Canvas = {
   render: function(canvas, $element){
 

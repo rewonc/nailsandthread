@@ -1,3 +1,8 @@
+
+
+
+
+
 describe("ImageParser init components", function(){
   var parser, src;
   src = "img/10x10circle.jpg";
