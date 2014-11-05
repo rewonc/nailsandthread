@@ -33,12 +33,14 @@
     //pixelLoader is a promise that will populate pixels when the image loads
     var pixelLoader = Parser.getRGB(source, 'img/man.jpg');
     var pixels;
-    //grid is a (W*H)x(W*H) matrix, and tells us which node is linked to which node. It requires memory equivalent to (WxH)^2, so adjacency lists are better for large images.
+    //grid is a (W*H)x(W*H) matrix, and tells us which node is linked to which node. It requires memory equivalent to (WxH)^2, so adjacency lists are better for graphs with many nodes. But this will work for img of size ~50x50.
     var grid = Grid.generate({width: 35, height: 54});
     console.log(grid);
     //Initial settings
     var MAX_LINES_DRAWN_PER_THREAD = 1800;
-    var LINE_THICKNESS = 50; //how much each line will decrement the RGB pixel values (scale of 0-255)
+    var LINE_THICKNESS = 50; 
+    //max lines: how many total lines should be drawn per color
+    //how much each line will decrement the RGB pixel values (scale of 0-255)
 
     //Iterative function
     var drawColor = function(color, count, node){
