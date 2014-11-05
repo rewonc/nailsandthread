@@ -38,21 +38,23 @@
     console.log(grid);
     //Initial settings
     var MAX_LINES_DRAWN_PER_THREAD = 1800;
+    var LINE_THICKNESS = 50; //how much each line will decrement the RGB pixel values (scale of 0-255)
 
     //Iterative function
     var drawColor = function(color, count, node){
       var origin = node || Math.floor(Math.random()*grid.size);
-      console.log("origin: " + origin)
-      var result = Grid.findNextPoint(origin, grid, pixels, color);
-      if (result.next)      {return drawColor(color, count - 1, result.next);    }
-      else                  {return drawColor(color, count + 1, result.previous); }
+      var result = Grid.findNextPoint(origin, grid, pixels, color, LINE_THICKNESS);
+      console.log("origin: " + origin);
+      console.log(result);
+      //if (result.next)      {return drawColor(color, count - 1, result.next);    }
+      //else                  {return drawColor(color, count + 1, result.previous); }
     }
     
     //start the iterating functions after the image loads
     pixelLoader.then(function(val){
-      
       pixels = val;
       //Initiate for each thread
+      console.log(pixels); 
       drawColor("red", MAX_LINES_DRAWN_PER_THREAD);
       drawColor("green", MAX_LINES_DRAWN_PER_THREAD);
       drawColor("blue", MAX_LINES_DRAWN_PER_THREAD);
