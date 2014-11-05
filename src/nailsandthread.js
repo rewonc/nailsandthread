@@ -71,15 +71,21 @@ var Grid = {
       var rcOrigin = Grid.helpers.convertToRC(origin, grid.width, grid.height);
       var rcNext = Grid.helpers.convertToRC(next, grid.width, grid.height);
       var originImg = Grid.helpers.scaleToImage(rcOrigin, grid.width, grid.height, pixels.width, pixels.height);
-      var nextImg= Grid.helpers.scaleToImage(rcNext, grid.width, grid.height, pixels.width, pixels.height);
+      var nextImg = Grid.helpers.scaleToImage(rcNext, grid.width, grid.height, pixels.width, pixels.height);
+      var slope = Grid.helpers.findSlope(originImg, nextImg);
+      console.log(JSON.stringify(slope));
+      return "pixels";
 
-      console.log("origin: " + origin + "//" + JSON.stringify(rcOrigin) + "//" + JSON.stringify(originImg));
-      console.log("next: " + next + "//" + JSON.stringify(rcNext) + "//" + JSON.stringify(nextImg));
+      //console.log("origin: " + origin + "//" + JSON.stringify(rcOrigin) + "//" + JSON.stringify(originImg));
+      //console.log("next: " + next + "//" + JSON.stringify(rcNext) + "//" + JSON.stringify(nextImg));
       /*console.log("grid size: " + gridLength);
       console.log("grid dimensons: " + grid.width + 'x' + grid.height);
       console.log("pixel size: " + pixelLength);
       console.log("pixel dimensions: " + pixels.width + 'x' + pixels.height);
       console.log("ratio: " + pixelLength / gridLength); */
+    },
+    findSlope: function(origin, next){
+
     },
     convertToRC: function (point, width, height){
       return {row: Math.floor(point / width), column: point % Math.floor(point / width)}
