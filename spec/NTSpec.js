@@ -30,4 +30,29 @@ describe("Grid.helper.findSlope", function(){
   });
 });
 
+describe("RC/Pixel conversions", function(){
+
+  it("Convert to RC should give expected value", function(){
+    var first = Grid.helpers.convertToRC(1000, 50, 50);
+    expect(first).toEqual({row: 20, column: 0});
+  });
+
+  it("RC to Pixel should give expected value", function(){
+    expect(Grid.helpers.rcToPixels(20, 0, 50, 50)).toBe(1000);
+  });
+
+  it("Pixel to RC shoudl match RC to pixel 1", function(){
+    var first = Grid.helpers.convertToRC(1000, 50, 50);
+    expect(Grid.helpers.rcToPixels(first.row, first.column, 50, 50)).toEqual(1000);
+  });
+
+  it("Pixel to RC shoudl match RC to pixel 2", function(){
+    var first = Grid.helpers.convertToRC(234, 200, 100);
+    console.log("row:" + first.row);
+    console.log("column:" + first.column);
+    expect(Grid.helpers.rcToPixels(first.row, first.column, 200, 100)).toEqual(234);
+  });
+
+
+});
   

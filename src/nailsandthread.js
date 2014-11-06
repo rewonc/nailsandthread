@@ -88,22 +88,21 @@ var Grid = {
     },
     pixellate: function(origin, next, slope, color, pixels){
       //slope in form: {"start_with":"rows","increment":1,"slope":0.6341463414634146,"count":410} 
+      var i = 0;
+      var res = [];
+      var shift;
+      if(color === "red")   shift=0;
+      if(color === "green") shift=1;
+      if(color === "blue")  shift=2;
       console.log(JSON.stringify(slope));
-      if (slope.increment === 1){
-        if(slope.start_with === "rows"){
-          for(var i=0; i<slope.count;i++){
-
-          }
-        } else{
+      if (slope.increment === 1 && slope.start_with === "rows"){
+        for(i;i<=slope.count;i++){
 
         }
-      } else {
-        if(slope.start_with === "rows"){
-
-        } else{
-          
-        }
-      }
+      } 
+    },
+    rcToPixels: function(row, column, width, height){
+      return (row*width) + column;
     },
     findSlope: function(origin, next){
       var rowDiff = next.row - origin.row;
@@ -125,7 +124,8 @@ var Grid = {
 
     },
     convertToRC: function (point, width, height){
-      return {row: Math.floor(point / width), column: point % Math.floor(point / width)};
+      var row = Math.floor(point / width);
+      return {row: row, column: point - width*row};
     },
     scaleToImage: function(rcPoint, width1, height1, width2, height2){
       return {row: height2/height1*rcPoint.row, column: width2/width1*rcPoint.column};
