@@ -51,6 +51,7 @@
       var origin = node || Math.floor(Math.random()*grid.size);
       var result = Grid.findNextPoint(origin, grid, pixels, color, LINE_THICKNESS);
       console.log("result: " + result);
+      //should keep last pointer in memory.
       //if (result.next)      {return drawColor(color, count - 1, result.next);    }
       //else                  {return drawColor(color, count + 1, result.previous); }
     }
@@ -66,6 +67,8 @@
 
       //Render the grid to the canvas
       Canvas.render(grid, target);
+      //Render the adjusted image...
+      Canvas.putImage(source, pixels)
     });
       
   });

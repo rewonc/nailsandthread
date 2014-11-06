@@ -16,6 +16,9 @@ var Parser = {
     
     img.src = url;
     return result;
+  },
+  putImage: function(canvas, data){
+
   }
 };
 
@@ -32,8 +35,17 @@ var Grid = {
     }
     return grid;
   },
-  draw: function(grid, pixelLine, pixels, thickness){
-    
+  draw: function(grid, origin, next, pixelLine, pixels, thickness, color){
+    //insert notes in the grid that you drew it.
+    console.log('drawing...');
+    var locus = grid.rows[origin][next]
+    if(locus === undefined) locus = {};
+    locus[color] = 1;
+    _.each(pixelLine, function(obj){
+      var adjusted = obj.value - thickness.value;
+      if (adjusted > 0) { pixels.data[obj.index] = adjusted; }
+      else              { pixels.data[obj.index] = 0; }
+    });
   },
   findNextPoint: function(origin, grid, pixels, color, thickness, counter){
     //loop terminators
@@ -51,8 +63,8 @@ var Grid = {
     
     //draw the pixels and note in Grid
     console.log(JSON.stringify(pixelLine));
-    Grid.draw(grid, pixelLine, pixels, thickness);
-    return pixelLine;
+    Grid.draw(grid, origin, next, pixelLine, pixels, thickness, color);
+    return {next: next};
   },
   helpers: {
     getRandom: function(grid){
@@ -60,7 +72,7 @@ var Grid = {
     },
     checkPopulated: function (origin, target, grid, color){
       if (origin === target) return true;
-      if (grid.rows[origin][target] && color in grid.rows[origin][target]) return true;
+      if (grid.rows[origin][target] && grid.rows[origin][target][color] === 1) return true;
       return false;
     },
     checkValidity: function(pixelLine, thickness){

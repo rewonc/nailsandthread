@@ -53,8 +53,6 @@ describe("RC/Pixel conversions", function(){
 
   it("Pixel to RC shoudl match RC to pixel 2", function(){
     var first = Grid.helpers.convertToRC(234, 200, 100);
-    console.log("row:" + first.row);
-    console.log("column:" + first.column);
     expect(Grid.helpers.rcToPixels(first.row, first.column, 200, 100)).toEqual(234);
   });
 
