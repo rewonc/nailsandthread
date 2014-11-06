@@ -33,7 +33,7 @@
     var grid = Grid.generate({width: 35, height: 54});
     console.log(grid);
     //Initial settings
-    var MAX_LINES_DRAWN_PER_THREAD = 1800;
+    var MAX_LINES_DRAWN_PER_THREAD = 50;
     var LINE_THICKNESS = {value: 64, margin: 32} 
     //max lines: how many total lines should be drawn per color?
     //If we estimate around 7x7 pixels per inch, maybe 4 thin threads would
@@ -47,13 +47,23 @@
     //how much each line will decrement the RGB pixel values (scale of 0-255)
 
     //Iterative function
-    var drawColor = function(color, count, node){
-      var origin = node || Math.floor(Math.random()*grid.size);
+    var drawColor = function(color, count, node, previous){
+      if (count === 0) return;
+      var origin;
+      if (node === undefined && previous === undefined){
+        origin = Math.floor(Math.random()*grid.size);
+      } else {
+        origin = node; 
+      }
+      //if origin fails, it should recurse to previous, which should be null,
+      //so it should randomly generate again.
+
       var result = Grid.findNextPoint(origin, grid, pixels, color, LINE_THICKNESS);
-      console.log("result: " + result);
-      //should keep last pointer in memory.
-      //if (result.next)      {return drawColor(color, count - 1, result.next);    }
-      //else                  {return drawColor(color, count + 1, result.previous); }
+      console.log("result: " + JSON.stringify(result));
+      //if result is not available, then we'll j
+      if (typeof result.next === "number")  {return drawColor(color, count - 1, result.next, origin);    }
+      else if (previous !== undefined)      {return drawColor(color, count); }
+      else                                  {return drawColor(color, count, previous)}
     }
     
     //start the iterating functions after the image loads
@@ -62,8 +72,8 @@
       //Initiate for each thread
       console.log(pixels); 
       drawColor("red", MAX_LINES_DRAWN_PER_THREAD);
-      //drawColor("green", MAX_LINES_DRAWN_PER_THREAD);
-      //drawColor("blue", MAX_LINES_DRAWN_PER_THREAD);
+      drawColor("green", MAX_LINES_DRAWN_PER_THREAD);
+      drawColor("blue", MAX_LINES_DRAWN_PER_THREAD);
 
       //Render the grid to the canvas
       Canvas.render(grid, target);

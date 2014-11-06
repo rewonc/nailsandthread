@@ -49,17 +49,15 @@ var Grid = {
     counter = counter || 0;
     if (counter > 100) {console.log('findNextPoint failed - 100 attempts'); return Grid.helpers.getLast(origin);}
     var next = Grid.helpers.selectNext(origin, grid, color);
-    console.log("next: " + next);
     if (next === false) return Grid.helpers.getLast(origin);
 
     //get the pixels
     var pixelLine = Grid.helpers.getPixels(origin, next, grid, pixels, color);
     var valid = Grid.helpers.checkValidity(pixelLine, thickness);
-    console.log(valid);
     if(valid === false) return Grid.findNextPoint(origin, grid, pixels, color, thickness, counter + 1);
     
     //draw the pixels and note in Grid
-    console.log(JSON.stringify(pixelLine));
+    console.log("drawing line from: " + origin + " to " + next);
     Grid.draw(grid, origin, next, pixelLine, pixels, thickness, color);
     return {next: next};
   },
@@ -84,7 +82,7 @@ var Grid = {
     },
     getLast: function (origin){
       console.log("getLast triggered--Needs implementation!!!");
-      return origin;
+      return false;
     },
     getPixels: function(origin, next, grid, pixels, color){
       var gridLength = grid.size;
