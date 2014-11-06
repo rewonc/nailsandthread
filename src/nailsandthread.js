@@ -34,7 +34,7 @@ var Grid = {
   },
   draw: function(grid, origin, next, pixelLine, pixels, thickness, color){
     //insert notes in the grid that you drew it.
-    console.log('drawing...');
+    //console.log('drawing...');
     var locus = grid.rows[origin][next];
     if(locus === undefined) locus = {};
     locus[color] = 1;
@@ -57,7 +57,7 @@ var Grid = {
     if(valid === false) return Grid.findNextPoint(origin, grid, pixels, color, thickness, counter + 1);
     
     //draw the pixels and note in Grid
-    console.log("drawing line from: " + origin + " to " + next);
+    //console.log("drawing line from: " + origin + " to " + next);
     Grid.draw(grid, origin, next, pixelLine, pixels, thickness, color);
     return {next: next};
   },
@@ -81,7 +81,7 @@ var Grid = {
       return Grid.helpers.selectNext(origin, grid, color, counter + 1);
     },
     getLast: function (origin){
-      console.log("End of line.");
+      //console.log("End of line.");
       return false;
     },
     getPixels: function(origin, next, grid, pixels, color){
@@ -161,7 +161,7 @@ var Canvas = {
 
   },
   putImage: function(canvas, data){
-    console.log('put image');
+    //console.log('put image');
     var context = canvas.getContext('2d');
     context.putImageData(data, 0, 0);
   }

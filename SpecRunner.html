@@ -17,6 +17,7 @@
   <script type="text/javascript" src="lib/jquery.js"></script>
 
   <script type="text/javascript" src="src/nailsandthread.js"></script>
+  
   <script type="text/javascript" src="spec/NTSpec.js"></script>
 
   <script type="text/javascript">
@@ -57,7 +58,7 @@
         origin = node; 
       }
       var result = Grid.findNextPoint(origin, grid, pixels, color, LINE_THICKNESS);
-      console.log("result: " + JSON.stringify(result));
+      //console.log("result: " + JSON.stringify(result));
       if (typeof result.next === "number")  {return drawColor(color, count - 1, result.next, origin);    }
       else {
         lines_count += MAX_LINES_DRAWN_PER_THREAD - count;
@@ -67,6 +68,7 @@
       //else                                  {return drawColor(color, count, previous)}
     }
     
+    var timeoutFn;
     var iter = function(){
       //Initiate for each thread
       drawColor("red", MAX_LINES_DRAWN_PER_THREAD);
@@ -78,14 +80,23 @@
       //Render the adjusted image...
       Canvas.putImage(source, pixels);
       $('#count').html(lines_count);
-      setTimeout(iter, 200);
+      timeoutFn = setTimeout(iter, 200);
     }
+
+    $('#pause').click(function(){
+      clearTimeout(timeoutFn);
+      console.log(grid);
+    });
+    $('#restart').click(function(){
+      timeoutFn = setTimeout(iter, 200);
+    });
     //start the iterating functions after the image loads
     pixelLoader.then(function(val){
       pixels = val;
       console.log(pixels); 
       iter();
     });
+
       
   });
  
@@ -136,6 +147,8 @@ ctx.putImageData(imgData,0,0);*/
 
   <canvas id="target"></canvas>
 
+  <button id="pause">Pause & log object to console</button>
+  <button id="restart">Restart</button>
 </body>
 
 </html>
