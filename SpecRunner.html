@@ -27,9 +27,10 @@
     var source = document.getElementById('source');
     var target = document.getElementById('target')
 
-    //pixelLoader is a promise that will populate pixels when the image loads
-    var pixelLoader = Parser.getRGB(source, 'img/man.jpg');
+    //pixelLoader is a promise that will populate pixels when the image loads. Pixels stores what's left of the image; pixelsToRender is a store of what the algo is drawing.
+    var pixelLoader = Parser.getRGB(source, 'img/puppyimg.jpg');
     var pixels;
+    var pixelsToRender;
     //grid is a (W*H)x(W*H) matrix, and tells us which node is linked to which node. It requires memory equivalent to (WxH)^2, so adjacency lists are better for graphs with many nodes. But this will work for img of size ~50x50.
     var grid = Grid.generate({width: 35, height: 54});
     console.log(grid);
@@ -75,8 +76,6 @@
       drawColor("green", MAX_LINES_DRAWN_PER_THREAD);
       drawColor("blue", MAX_LINES_DRAWN_PER_THREAD);
 
-      //Render the grid to the canvas
-      Canvas.render(grid, target);
       //Render the adjusted image...
       Canvas.putImage(source, pixels);
       $('#count').html(lines_count);
@@ -90,50 +89,20 @@
     $('#restart').click(function(){
       timeoutFn = setTimeout(iter, 200);
     });
+    $('#render').click(function(){
+      Canvas.render(target, grid);
+    });
     //start the iterating functions after the image loads
     pixelLoader.then(function(val){
       pixels = val;
       console.log(pixels); 
+      pixelsToRender = Canvas.newImageData(target, pixels.width, pixels.height);
+      console.log(pixelsToRender);
       iter();
     });
 
       
   });
- 
- /* load image and convert to array */
-
-
-/* commented out
-var imgData=ctx.getImageData(0,0,c.width,c.height);
-// invert colors
-for (var i=0;i<imgData.data.length;i+=4)
-  {
-  imgData.data[i]=255-imgData.data[i];
-  imgData.data[i+1]=255-imgData.data[i+1];
-  imgData.data[i+2]=255-imgData.data[i+2];
-  imgData.data[i+3]=255;
-  }
-ctx.putImageData(imgData,0,0);
-
-  $(function(){
-    var ctx = $("#canvas")[0].getContext("2d");
-    var img = $("#image")[0];
-    ctx.drawImage(img,0,0)
-
-  });
-*/
-
-/* commented in
-var imgData=ctx.getImageData(0,0,c.width,c.height);
-// invert colors
-for (var i=0;i<imgData.data.length;i+=4)
-  {
-  imgData.data[i]=255-imgData.data[i];
-  imgData.data[i+1]=255-imgData.data[i+1];
-  imgData.data[i+2]=255-imgData.data[i+2];
-  imgData.data[i+3]=255;
-  }
-ctx.putImageData(imgData,0,0);*/
 
   </script>
 
@@ -149,6 +118,7 @@ ctx.putImageData(imgData,0,0);*/
 
   <button id="pause">Pause & log object to console</button>
   <button id="restart">Restart</button>
+  <button id="render">Render to Canvas</button>
 </body>
 
 </html>

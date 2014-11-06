@@ -28,7 +28,7 @@ var Grid = {
     grid.width = options.width;
     grid.height = options.height;
     for(var i=0;i<grid.size;i++){
-      grid.rows[i] = new Array(grid.size);
+      grid.rows[i] = [];
     }
     return grid;
   },
@@ -38,6 +38,7 @@ var Grid = {
     var locus = grid.rows[origin][next];
     if(locus === undefined) locus = {};
     locus[color] = 1;
+    grid.rows[origin][next] = locus;
     _.each(pixelLine, function(obj){
       var adjusted = obj.value - thickness.value;
       if (adjusted > 0) { pixels.data[obj.index] = adjusted; }
@@ -157,8 +158,13 @@ var Grid = {
 };
     
 var Canvas = {
-  render: function(canvas, $element){
+  render: function(canvas, grid){
+    console.log(grid);
 
+  },
+  newImageData: function(canvas, width, height){
+    var context = canvas.getContext('2d');
+    return context.createImageData(width, height);
   },
   putImage: function(canvas, data){
     //console.log('put image');
