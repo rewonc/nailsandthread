@@ -16,9 +16,6 @@ var Parser = {
     
     img.src = url;
     return result;
-  },
-  putImage: function(canvas, data){
-
   }
 };
 
@@ -38,7 +35,7 @@ var Grid = {
   draw: function(grid, origin, next, pixelLine, pixels, thickness, color){
     //insert notes in the grid that you drew it.
     console.log('drawing...');
-    var locus = grid.rows[origin][next]
+    var locus = grid.rows[origin][next];
     if(locus === undefined) locus = {};
     locus[color] = 1;
     _.each(pixelLine, function(obj){
@@ -164,5 +161,11 @@ var Grid = {
 var Canvas = {
   render: function(canvas, $element){
 
+  },
+  putImage: function(canvas, data){
+    console.log('put image');
+    var context = canvas.getContext('2d');
+    context.putImageData(data, 0, 0);
+    console.log('success?');
   }
 };
