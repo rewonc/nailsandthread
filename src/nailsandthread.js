@@ -47,7 +47,7 @@ var Grid = {
   findNextPoint: function(origin, grid, pixels, color, thickness, counter){
     //loop terminators
     counter = counter || 0;
-    if (counter > 100) {console.log('findNextPoint failed - 100 attempts'); return Grid.helpers.getLast(origin);}
+    if (counter > 100) {return Grid.helpers.getLast(origin);}
     var next = Grid.helpers.selectNext(origin, grid, color);
     if (next === false) return Grid.helpers.getLast(origin);
 
@@ -81,7 +81,7 @@ var Grid = {
       return Grid.helpers.selectNext(origin, grid, color, counter + 1);
     },
     getLast: function (origin){
-      console.log("getLast triggered--Needs implementation!!!");
+      console.log("End of line.");
       return false;
     },
     getPixels: function(origin, next, grid, pixels, color){
@@ -164,6 +164,5 @@ var Canvas = {
     console.log('put image');
     var context = canvas.getContext('2d');
     context.putImageData(data, 0, 0);
-    console.log('success?');
   }
 };

@@ -33,6 +33,7 @@
     var grid = Grid.generate({width: 35, height: 54});
     console.log(grid);
     //Initial settings
+    var lines_count = 0;
     var MAX_LINES_DRAWN_PER_THREAD = 50;
     var LINE_THICKNESS = {value: 64, margin: 32} 
     //max lines: how many total lines should be drawn per color?
@@ -48,29 +49,26 @@
 
     //Iterative function
     var drawColor = function(color, count, node, previous){
-      if (count === 0) return;
+      if (count === 0) {lines_count+= MAX_LINES_DRAWN_PER_THREAD; return;}
       var origin;
       if (node === undefined && previous === undefined){
         origin = Math.floor(Math.random()*grid.size);
       } else {
         origin = node; 
       }
-      //if origin fails, it should recurse to previous, which should be null,
-      //so it should randomly generate again.
-
       var result = Grid.findNextPoint(origin, grid, pixels, color, LINE_THICKNESS);
       console.log("result: " + JSON.stringify(result));
-      //if result is not available, then we'll j
       if (typeof result.next === "number")  {return drawColor(color, count - 1, result.next, origin);    }
-      else if (previous !== undefined)      {return drawColor(color, count); }
-      else                                  {return drawColor(color, count, previous)}
+      else {
+        lines_count += MAX_LINES_DRAWN_PER_THREAD - count;
+        return;
+      }
+      //else if (previous !== undefined)      {return drawColor(color, count); }
+      //else                                  {return drawColor(color, count, previous)}
     }
     
-    //start the iterating functions after the image loads
-    pixelLoader.then(function(val){
-      pixels = val;
+    var iter = function(){
       //Initiate for each thread
-      console.log(pixels); 
       drawColor("red", MAX_LINES_DRAWN_PER_THREAD);
       drawColor("green", MAX_LINES_DRAWN_PER_THREAD);
       drawColor("blue", MAX_LINES_DRAWN_PER_THREAD);
@@ -78,7 +76,15 @@
       //Render the grid to the canvas
       Canvas.render(grid, target);
       //Render the adjusted image...
-      Canvas.putImage(source, pixels)
+      Canvas.putImage(source, pixels);
+      $('#count').html(lines_count);
+      setTimeout(iter, 200);
+    }
+    //start the iterating functions after the image loads
+    pixelLoader.then(function(val){
+      pixels = val;
+      console.log(pixels); 
+      iter();
     });
       
   });
@@ -123,7 +129,7 @@ ctx.putImageData(imgData,0,0);*/
 </head>
 
 <body>
-  <h2>Source canvas:</h2>
+  <h2>Source canvas. <span id="count">0</span> lines drawn.</h2>
   <canvas id="source"></canvas>
 
   <p>Drawing canvas:</p>
