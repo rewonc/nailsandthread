@@ -32,17 +32,27 @@ var Grid = {
     }
     return grid;
   },
-  findNextPoint: function(origin, grid, pixels, color, thickness){
+  draw: function(grid, pixelLine, pixels, thickness){
+    
+  },
+  findNextPoint: function(origin, grid, pixels, color, thickness, counter){
+    //loop terminators
+    counter = counter || 0;
+    if (counter > 100) {console.log('findNextPoint failed - 100 attempts'); return Grid.helpers.getLast(origin);}
     var next = Grid.helpers.selectNext(origin, grid, color);
     console.log("next: " + next);
     if (next === false) return Grid.helpers.getLast(origin);
+
+    //get the pixels
     var pixelLine = Grid.helpers.getPixels(origin, next, grid, pixels, color);
-    //check if it is feasible(if not, restart)
-    //if restart more than 10 times, choose another path
-    //else, decrement the value of all the arrays
-    //return the next node
-    console.log(pixelLine);
-    return "nextPt";
+    var valid = Grid.helpers.checkValidity(pixelLine, thickness);
+    console.log(valid);
+    if(valid === false) return Grid.findNextPoint(origin, grid, pixels, color, thickness, counter + 1);
+    
+    //draw the pixels and note in Grid
+    console.log(JSON.stringify(pixelLine));
+    Grid.draw(grid, pixelLine, pixels, thickness);
+    return pixelLine;
   },
   helpers: {
     getRandom: function(grid){
@@ -53,9 +63,12 @@ var Grid = {
       if (grid.rows[origin][target] && color in grid.rows[origin][target]) return true;
       return false;
     },
+    checkValidity: function(pixelLine, thickness){
+      return _.every(pixelLine, function(obj){return obj.value > thickness.margin});
+    },
     selectNext: function (origin, grid, color, counter){
       counter = counter || 0;
-      if(counter > 10) return false;
+      if(counter > 200) return false;
       var x = Grid.helpers.getRandom(grid);
       if(!Grid.helpers.checkPopulated(origin, x, grid, color)) return x;
       return Grid.helpers.selectNext(origin, grid, color, counter + 1);
@@ -83,14 +96,21 @@ var Grid = {
       if(color === "red")   shift=0;
       if(color === "green") shift=1;
       if(color === "blue")  shift=2;
-      console.log(JSON.stringify(slope));
+      //console.log(JSON.stringify(slope));
       if (slope.start_with === "rows"){
         for(;i<=slope.count;i++){
-          res.push(pixels.data[Grid.helpers.rcToPixels(origin.row+(i*slope.increment), Math.round(origin.column+i*slope.slope), pixels.width, pixels.height, shift)]);
+          (function(i){
+            var index = Grid.helpers.rcToPixels(origin.row+(i*slope.increment), Math.round(origin.column+i*slope.slope), pixels.width, pixels.height, shift);
+            res.push({index: index, value: pixels.data[index] });
+          })(i);
         }
       } else{
+
         for(;i<=slope.count;i++){
-          res.push(pixels.data[Grid.helpers.rcToPixels(Math.round(origin.row+i*slope.slope), origin.column+(i*slope.increment), pixels.width, pixels.height, shift)]);
+          (function(i){
+            var index = Grid.helpers.rcToPixels(Math.round(origin.row+i*slope.slope), origin.column+(i*slope.increment), pixels.width, pixels.height, shift);
+            res.push({index: index, value: pixels.data[index]});
+          })(i);
         }
       }
       return res;

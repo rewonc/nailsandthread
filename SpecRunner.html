@@ -34,7 +34,7 @@
     console.log(grid);
     //Initial settings
     var MAX_LINES_DRAWN_PER_THREAD = 1800;
-    var LINE_THICKNESS = 50; 
+    var LINE_THICKNESS = {value: 64, margin: 32} 
     //max lines: how many total lines should be drawn per color?
     //If we estimate around 7x7 pixels per inch, maybe 4 thin threads would
     //cover each pixel. So each thread is 256/4 or 64 px in intensity.
