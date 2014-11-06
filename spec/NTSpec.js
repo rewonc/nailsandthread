@@ -41,6 +41,11 @@ describe("RC/Pixel conversions", function(){
     expect(Grid.helpers.rcToPixels(20, 0, 50, 50)).toBe(1000);
   });
 
+  it("RC to Pixel should accept color shift to RGB map", function(){
+    expect(Grid.helpers.rcToPixels(20, 0, 50, 50, 0)).toBe(4000);
+    expect(Grid.helpers.rcToPixels(20, 0, 50, 50, 2)).toBe(4002);
+  });
+
   it("Pixel to RC shoudl match RC to pixel 1", function(){
     var first = Grid.helpers.convertToRC(1000, 50, 50);
     expect(Grid.helpers.rcToPixels(first.row, first.column, 50, 50)).toEqual(1000);

@@ -73,18 +73,7 @@ var Grid = {
       var originImg = Grid.helpers.scaleToImage(rcOrigin, grid.width, grid.height, pixels.width, pixels.height);
       var nextImg = Grid.helpers.scaleToImage(rcNext, grid.width, grid.height, pixels.width, pixels.height);
       var slope = Grid.helpers.findSlope(originImg, nextImg);
-       
-      return Grid.helpers.pixellate(origin, next, slope, color, pixels)
-      
-      
-
-      //console.log("origin: " + origin + "//" + JSON.stringify(rcOrigin) + "//" + JSON.stringify(originImg));
-      //console.log("next: " + next + "//" + JSON.stringify(rcNext) + "//" + JSON.stringify(nextImg));
-      /*console.log("grid size: " + gridLength);
-      console.log("grid dimensons: " + grid.width + 'x' + grid.height);
-      console.log("pixel size: " + pixelLength);
-      console.log("pixel dimensions: " + pixels.width + 'x' + pixels.height);
-      console.log("ratio: " + pixelLength / gridLength); */
+      return Grid.helpers.pixellate(originImg, nextImg, slope, color, pixels);
     },
     pixellate: function(origin, next, slope, color, pixels){
       //slope in form: {"start_with":"rows","increment":1,"slope":0.6341463414634146,"count":410} 
@@ -95,14 +84,21 @@ var Grid = {
       if(color === "green") shift=1;
       if(color === "blue")  shift=2;
       console.log(JSON.stringify(slope));
-      if (slope.increment === 1 && slope.start_with === "rows"){
-        for(i;i<=slope.count;i++){
-
+      if (slope.start_with === "rows"){
+        for(;i<=slope.count;i++){
+          res.push(pixels.data[Grid.helpers.rcToPixels(origin.row+(i*slope.increment), Math.round(origin.column+i*slope.slope), pixels.width, pixels.height, shift)]);
         }
-      } 
+      } else{
+        for(;i<=slope.count;i++){
+          res.push(pixels.data[Grid.helpers.rcToPixels(Math.round(origin.row+i*slope.slope), origin.column+(i*slope.increment), pixels.width, pixels.height, shift)]);
+        }
+      }
+      return res;
     },
-    rcToPixels: function(row, column, width, height){
-      return (row*width) + column;
+    rcToPixels: function(row, column, width, height, colorShift){
+      var natural = (row*width) + column;
+      if(colorShift === undefined) return natural;
+      return natural * 4 + colorShift;
     },
     findSlope: function(origin, next){
       var rowDiff = next.row - origin.row;
