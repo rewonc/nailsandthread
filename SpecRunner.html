@@ -58,7 +58,7 @@
       } else {
         origin = node; 
       }
-      var result = Grid.findNextPoint(origin, grid, pixels, color, LINE_THICKNESS);
+      var result = Grid.findNextPoint(origin, grid, pixels, color, LINE_THICKNESS, pixelsToRender);
       //console.log("result: " + JSON.stringify(result));
       if (typeof result.next === "number")  {return drawColor(color, count - 1, result.next, origin);    }
       else {
@@ -90,13 +90,14 @@
       timeoutFn = setTimeout(iter, 200);
     });
     $('#render').click(function(){
-      Canvas.render(target, grid);
+      console.log(pixelsToRender);
+      Canvas.putImage(target, pixelsToRender);
     });
     //start the iterating functions after the image loads
     pixelLoader.then(function(val){
       pixels = val;
       console.log(pixels); 
-      pixelsToRender = Canvas.newImageData(target, pixels.width, pixels.height);
+      pixelsToRender = Canvas.newImageData(target, pixels.width, pixels.height, 255);
       console.log(pixelsToRender);
       iter();
     });

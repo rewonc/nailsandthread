@@ -32,7 +32,7 @@ var Grid = {
     }
     return grid;
   },
-  draw: function(grid, origin, next, pixelLine, pixels, thickness, color){
+  draw: function(grid, origin, next, pixelLine, pixels, thickness, color, pixelsToRender){
     //insert notes in the grid that you drew it.
     //console.log('drawing...');
     var locus = grid.rows[origin][next];
@@ -41,11 +41,13 @@ var Grid = {
     grid.rows[origin][next] = locus;
     _.each(pixelLine, function(obj){
       var adjusted = obj.value - thickness.value;
-      if (adjusted > 0) { pixels.data[obj.index] = adjusted; }
-      else              { pixels.data[obj.index] = 0; }
+      if (adjusted > 0) { pixels.data[obj.index] = adjusted;
+                          pixelsToRender.data[obj.index] += thickness.value; }
+      else              { pixels.data[obj.index] = 0; 
+                          pixelsToRender.data[obj.index] += thickness.value; }
     });
   },
-  findNextPoint: function(origin, grid, pixels, color, thickness, counter){
+  findNextPoint: function(origin, grid, pixels, color, thickness, pixelsToRender, counter){
     //loop terminators
     counter = counter || 0;
     if (counter > 100) {return Grid.helpers.getLast(origin);}
@@ -55,11 +57,11 @@ var Grid = {
     //get the pixels
     var pixelLine = Grid.helpers.getPixels(origin, next, grid, pixels, color);
     var valid = Grid.helpers.checkValidity(pixelLine, thickness);
-    if(valid === false) return Grid.findNextPoint(origin, grid, pixels, color, thickness, counter + 1);
+    if(valid === false) return Grid.findNextPoint(origin, grid, pixels, color, thickness, pixelsToRender, counter + 1);
     
     //draw the pixels and note in Grid
     //console.log("drawing line from: " + origin + " to " + next);
-    Grid.draw(grid, origin, next, pixelLine, pixels, thickness, color);
+    Grid.draw(grid, origin, next, pixelLine, pixels, thickness, color, pixelsToRender);
     return {next: next};
   },
   helpers: {
@@ -72,7 +74,7 @@ var Grid = {
       return false;
     },
     checkValidity: function(pixelLine, thickness){
-      return _.every(pixelLine, function(obj){return obj.value > thickness.margin});
+      return _.every(pixelLine, function(obj){return obj.value > thickness.margin;});
     },
     selectNext: function (origin, grid, color, counter){
       counter = counter || 0;
@@ -162,12 +164,17 @@ var Canvas = {
     console.log(grid);
 
   },
-  newImageData: function(canvas, width, height){
+  newImageData: function(canvas, width, height, opacity){
     var context = canvas.getContext('2d');
-    return context.createImageData(width, height);
+    var imgdata = context.createImageData(width, height);
+    for(var i=0; i<imgdata.data.length; i+=4){
+      imgdata.data[i+3] = opacity;
+    }
+    return imgdata;
   },
   putImage: function(canvas, data){
-    //console.log('put image');
+    canvas.width = data.width;
+    canvas.height = data.height;//console.log('put image');
     var context = canvas.getContext('2d');
     context.putImageData(data, 0, 0);
   }
