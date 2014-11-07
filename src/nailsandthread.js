@@ -46,7 +46,8 @@ var Grid = {
     //console.log('drawing...');
     var locus = grid.rows[origin][next];
     if(locus === undefined) locus = {};
-    locus[color] = 1;
+    if (locus[color] === undefined) locus[color] = 0;
+    locus[color] +=1;
     grid.rows[origin][next] = locus;
     grid.pixelStore[origin][color] += -1*thickness.value;
     _.each(pixelLine, function(obj){
@@ -80,6 +81,13 @@ var Grid = {
   },
   findNextByWalking: function(origin, grid, pixels, color, thickness){
     //Find adjacent lines
+    //we want large queries to be infrequent. so lets have a random 
+    //distro along the power curve.
+    
+    //var rand = Math.random()*Math.log(50)/Math.LN10;
+    //var adjust = Math.floor(Math.pow(10, rand)-30);
+    //if (adjust < 0) adjust = 2;
+    //var radius = adjust; 
     var list = Grid.helpers.nodesAdjacentTo(origin, grid, 3, color);
     for(var i=0; i<list.length;i++){
       if(Grid.helpers.checkGridValidity(origin, list[i], grid, color, thickness) === true) {

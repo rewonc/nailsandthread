@@ -66,9 +66,7 @@ describe("nodesAdjacentTo", function(){
   var grid77 = Grid.generate({width: 7, height: 7});
   var grid99 = Grid.generate({width: 9, height: 9});
   var grid1010 = Grid.generate({width: 10, height: 10});
-  console.log("77");
-  console.log(JSON.stringify(grid77));
-  
+
   it("should start with grids of expected size", function(){
     expect(grid33.size).toBe(9);
     expect(grid77.size).toBe(49);
