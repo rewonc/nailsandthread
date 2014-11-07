@@ -49,7 +49,8 @@ var Grid = {
     if (locus[color] === undefined) locus[color] = 0;
     locus[color] +=1;
     grid.rows[origin][next] = locus;
-    grid.pixelStore[origin][color] += -1*thickness.value;
+    //Don't draw on the pixel store, as its a reference.
+    //grid.pixelStore[origin][color] += -1*thickness.value;
     _.each(pixelLine, function(obj){
       var adjusted = obj.value - thickness.value;
       if (adjusted > 0) { pixels.data[obj.index] = adjusted;
@@ -145,7 +146,7 @@ var Grid = {
       if (grid.rows[origin][target] && grid.rows[origin][target][color] === 1) return false;
       //we check against the value in GridReference because it is quick
       //way to tell what the color values in the area are.
-      //if (grid.pixelStore[target][color] < 2) return false;
+      if (grid.pixelStore[target][color] < thickness.margin) return false;
       return true;
     },
     checkValidity: function(pixelLine, thickness){
@@ -168,7 +169,7 @@ var Grid = {
     },
     pixellate: function(origin, next, slope, color, pixels){
       //slope in form: {"start_with":"rows","increment":1,"slope":0.6341463414634146,"count":410} 
-      var i = 0;
+      var i = 1;
       var res = [];
       var shift;
       if(color === "red")   shift=0;
@@ -176,7 +177,7 @@ var Grid = {
       if(color === "blue")  shift=2;
       //console.log(JSON.stringify(slope));
       if (slope.start_with === "rows"){
-        for(;i<=slope.count;i++){
+        for(;i<slope.count;i++){
           (function(i){
             var index = Grid.helpers.rcToPixels(origin.row+(i*slope.increment), Math.round(origin.column+i*slope.slope), pixels.width, pixels.height, shift);
             res.push({index: index, value: pixels.data[index] });
@@ -184,7 +185,7 @@ var Grid = {
         }
       } else{
 
-        for(;i<=slope.count;i++){
+        for(;i<slope.count;i++){
           (function(i){
             var index = Grid.helpers.rcToPixels(Math.round(origin.row+i*slope.slope), origin.column+(i*slope.increment), pixels.width, pixels.height, shift);
             res.push({index: index, value: pixels.data[index]});

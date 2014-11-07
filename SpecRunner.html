@@ -98,15 +98,15 @@
     var timeoutFn;
     var iter = function(){
       //Initiate for each thread
-      if(lines_count < 1200){
+      /*if(lines_count < 0){
         drawColor("red", MAX_LINES_DRAWN_PER_THREAD);
         drawColor("green", MAX_LINES_DRAWN_PER_THREAD);
         drawColor("blue", MAX_LINES_DRAWN_PER_THREAD);
-      } else{
+      } else{*/
         drawColorNarrow("red", MAX_LINES_DRAWN_PER_THREAD);
         drawColorNarrow("green", MAX_LINES_DRAWN_PER_THREAD);
         drawColorNarrow("blue", MAX_LINES_DRAWN_PER_THREAD);
-      }
+     // }
       //Render the adjusted image...
       Canvas.putImage(source, pixels);
       $('#count').html(lines_count);
