@@ -89,7 +89,7 @@ var Grid = {
     //var adjust = Math.floor(Math.pow(10, rand)-30);
     //if (adjust < 0) adjust = 2;
     //var radius = adjust; 
-    var list = Grid.helpers.nodesAdjacentTo(origin, grid, 3, color);
+    var list = Grid.helpers.nodesAdjacentTo(origin, grid, 4, color);
     for(var i=0; i<list.length;i++){
       if(Grid.helpers.checkGridValidity(origin, list[i], grid, color, thickness) === true) {
         var pixelLine = Grid.helpers.getPixels(origin, list[i], grid, pixels, color);
