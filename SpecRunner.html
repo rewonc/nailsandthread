@@ -32,12 +32,12 @@
     var pixels;
     var pixelsToRender;
     //grid is a (W*H)x(W*H) matrix, and tells us which node is linked to which node. It requires memory equivalent to (WxH)^2, so adjacency lists are better for graphs with many nodes. But this will work for img of size ~50x50.
-    var grid = Grid.generate({width: 35, height: 54});
+    var grid = Grid.generate({width: 70, height: 108});
     console.log(grid);
     //Initial settings
     var lines_count = 0;
     var MAX_LINES_DRAWN_PER_THREAD = 50;
-    var LINE_THICKNESS = {value: 64, margin: 32} 
+    var LINE_THICKNESS = {value: 32, margin: 16} 
     //max lines: how many total lines should be drawn per color?
     //If we estimate around 7x7 pixels per inch, maybe 4 thin threads would
     //cover each pixel. So each thread is 256/4 or 64 px in intensity.

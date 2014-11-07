@@ -51,7 +51,8 @@ var Grid = {
     //loop terminators
     counter = counter || 0;
     if (counter > 100) {return Grid.helpers.getLast(origin);}
-    var next = Grid.helpers.selectNext(origin, grid, color);
+    //select next point
+    var next = Grid.helpers.selectNext(origin, grid, color, pixels);
     if (next === false) return Grid.helpers.getLast(origin);
 
     //get the pixels
@@ -76,12 +77,17 @@ var Grid = {
     checkValidity: function(pixelLine, thickness){
       return _.every(pixelLine, function(obj){return obj.value > thickness.margin;});
     },
-    selectNext: function (origin, grid, color, counter){
+    selectNext: function (origin, grid, color, pixels, counter){
       counter = counter || 0;
       if(counter > 200) return false;
+      //origin is int in grid. grid has grid.rows, height width size. color is "red". 
+      //pixels is imagedata. counter is a counter.
+      //So we should loop through the farthest points. Maybe generate an array of the 
+      //farthest points, check in line until find, rather than having a counter. 
+      //if no find, then start over. 
       var x = Grid.helpers.getRandom(grid);
       if(!Grid.helpers.checkPopulated(origin, x, grid, color)) return x;
-      return Grid.helpers.selectNext(origin, grid, color, counter + 1);
+      return Grid.helpers.selectNext(origin, grid, color, pixels, counter + 1);
     },
     getLast: function (origin){
       //console.log("End of line.");
