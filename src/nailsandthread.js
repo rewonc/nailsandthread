@@ -20,7 +20,7 @@ var Parser = {
 };
 
 var Grid = {
-  generate: function(options, pixels) {
+  generate: function(options) {
     //try an adjacency matrix for this for quick scanning
     var grid = {};
     grid.rows = [];
@@ -48,6 +48,7 @@ var Grid = {
     if(locus === undefined) locus = {};
     locus[color] = 1;
     grid.rows[origin][next] = locus;
+    grid.pixelStore[origin][color] += -1*thickness.value;
     _.each(pixelLine, function(obj){
       var adjusted = obj.value - thickness.value;
       if (adjusted > 0) { pixels.data[obj.index] = adjusted;
@@ -56,9 +57,31 @@ var Grid = {
                           pixelsToRender.data[obj.index] += thickness.value; }
     });
   },
-  findNextPoint: function(origin, grid, pixels, color, thickness){
+  findNextPointFarthest: function(origin, grid, pixels, color, thickness){
     var list = Grid.helpers.farthestNodesFrom(origin, grid);
-    for(var i=0; i<grid.size-1;i++){
+    for(var i=0; i<grid.size-1;i+=Math.floor(Math.random()*100)){
+      if(Grid.helpers.checkGridValidity(origin, list[i], grid, color, thickness) === true) {
+        var pixelLine = Grid.helpers.getPixels(origin, list[i], grid, pixels, color);
+        if(Grid.helpers.checkValidity(pixelLine, thickness)) return {pixelLine: pixelLine, next: list[i], prev: origin};
+      }
+    }
+    return false;
+  },
+  findNextPointRandom: function(origin, grid, pixels, color, thickness){
+    var randomPt = [];
+    for (var i=0;i<grid.size/10;i++){
+      randomPt[i] = Grid.helpers.getRandom(grid, thickness, color);
+      if(Grid.helpers.checkGridValidity(origin, randomPt[i], grid, color, thickness) === true) {
+        var pixelLine = Grid.helpers.getPixels(origin, randomPt[i], grid, pixels, color);
+        if(Grid.helpers.checkValidity(pixelLine, thickness)) return {pixelLine: pixelLine, next: randomPt[i], prev: origin};
+      }
+    }
+    return false;
+  },
+  findNextByWalking: function(origin, grid, pixels, color, thickness){
+    //Find adjacent lines
+    var list = Grid.helpers.nodesAdjacentTo(origin, grid, 3, color);
+    for(var i=0; i<list.length;i++){
       if(Grid.helpers.checkGridValidity(origin, list[i], grid, color, thickness) === true) {
         var pixelLine = Grid.helpers.getPixels(origin, list[i], grid, pixels, color);
         if(Grid.helpers.checkValidity(pixelLine, thickness)) return {pixelLine: pixelLine, next: list[i], prev: origin};
@@ -81,6 +104,26 @@ var Grid = {
         return triangular * -1;
       });
     },
+    nodesAdjacentTo: function(origin, grid, radius, color, mock){
+      var arr = [];
+      //turn to rc
+      var rcPoint = Grid.helpers.convertToRC(origin, grid.width, grid.height);
+      //lets say row10, column10
+      for(var i=rcPoint.row-radius;i<=rcPoint.row+radius;i++){
+        for(var j=rcPoint.column-radius;j<=rcPoint.column+radius;j++){
+          if(i<0 || j<0 || i>=grid.height || j>=grid.width || (i===rcPoint.row && j===rcPoint.column) ) {
+            //do nothing
+          } else {
+            arr.push( Grid.helpers.rcToPixels(i, j, grid.width, grid.height) );
+          }
+        }
+      }
+      if (mock === true) return arr;
+      return _.shuffle(arr);
+      //return _.sortBy(arr, function(val){
+      //  return grid.pixelStore[val][color];
+      //});
+    },
     getRandom: function(grid, thickness, color){
       return random();
       function random(){
@@ -94,7 +137,7 @@ var Grid = {
       if (grid.rows[origin][target] && grid.rows[origin][target][color] === 1) return false;
       //we check against the value in GridReference because it is quick
       //way to tell what the color values in the area are.
-      if (grid.pixelStore[target][color] < thickness.margin) return false;
+      //if (grid.pixelStore[target][color] < 2) return false;
       return true;
     },
     checkValidity: function(pixelLine, thickness){

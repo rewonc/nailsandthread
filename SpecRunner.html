@@ -59,7 +59,7 @@
       } else {
         origin = node; 
       }
-      var result = Grid.findNextPoint(origin, grid, pixels, color, LINE_THICKNESS);
+      var result = Grid.findNextByWalking(origin, grid, pixels, color, LINE_THICKNESS);
       if (typeof result.next === "number")  {
         Grid.draw(grid, origin, result.next, result.pixelLine, pixels, LINE_THICKNESS, color, pixelsToRender);
         return drawColor(color, count - 1, result.next, result.prev);    
@@ -83,7 +83,7 @@
       //Render the adjusted image...
       Canvas.putImage(source, pixels);
       $('#count').html(lines_count);
-      timeoutFn = setTimeout(iter, 400);
+      timeoutFn = setTimeout(iter, 10);
     }
 
     $('#pause').click(function(){
@@ -92,7 +92,7 @@
     });
     $('#restart').click(function(){
       //iter();
-      timeoutFn = setTimeout(iter, 400);
+      timeoutFn = setTimeout(iter, 10);
     });
     $('#render').click(function(){
       console.log(pixelsToRender);

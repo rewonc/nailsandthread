@@ -59,3 +59,42 @@ describe("RC/Pixel conversions", function(){
 
 });
   
+describe("nodesAdjacentTo", function(){
+
+  var grid33 = Grid.generate({width: 3, height: 3});
+  var grid55 = Grid.generate({width: 5, height: 5});
+  var grid77 = Grid.generate({width: 7, height: 7});
+  var grid99 = Grid.generate({width: 9, height: 9});
+  var grid1010 = Grid.generate({width: 10, height: 10});
+  console.log("77");
+  console.log(JSON.stringify(grid77));
+  
+  it("should start with grids of expected size", function(){
+    expect(grid33.size).toBe(9);
+    expect(grid77.size).toBe(49);
+    expect(grid1010.size).toBe(100);
+    expect(grid1010.size).toBe(grid1010.rows.length);
+    expect(grid77.width).toBe(7);
+  });
+
+  it("should give the right amount of adjacent nodes for a center node", function(){
+    //caution: r, c numbers go up to width -1, height - 1. So selecting 2, 2 in a 3x3 grid actually selects the last value.
+    expect(Grid.helpers.nodesAdjacentTo(Grid.helpers.rcToPixels(3, 3, 7, 7), grid77, 1, null, true).length + 1).toBe(9);
+    expect(Grid.helpers.nodesAdjacentTo(Grid.helpers.rcToPixels(1, 1, 3, 3), grid33, 1, null, true).length + 1).toBe(9);
+  });
+
+  it("should give the right amount of adjacent for a side node", function(){
+    //caution: r, c numbers go up to width -1, height - 1. So selecting 2, 2 in a 3x3 grid actually selects the last value.
+    expect(Grid.helpers.nodesAdjacentTo(Grid.helpers.rcToPixels(6, 3, 7, 7), grid77, 1, null, true).length + 1).toBe(6);
+    expect(Grid.helpers.nodesAdjacentTo(Grid.helpers.rcToPixels(1, 2, 3, 3), grid33, 1, null, true).length + 1).toBe(6);
+    expect(Grid.helpers.nodesAdjacentTo(Grid.helpers.rcToPixels(0, 5, 10, 10), grid1010, 3, null, true).length + 1).toBe(28);
+  });
+
+  it("should give the right amount of adjacent for a corner node", function(){
+    //caution: r, c numbers go up to width -1, height - 1. So selecting 2, 2 in a 3x3 grid actually selects the last value.
+    expect(Grid.helpers.nodesAdjacentTo(Grid.helpers.rcToPixels(6, 6, 7, 7), grid77, 1, null, true).length + 1).toBe(4);
+    expect(Grid.helpers.nodesAdjacentTo(Grid.helpers.rcToPixels(0, 0, 3, 3), grid33, 1, null, true).length + 1).toBe(4);
+    expect(Grid.helpers.nodesAdjacentTo(Grid.helpers.rcToPixels(0, 0, 10, 10), grid1010, 3, null, true).length + 1).toBe(16);
+  });
+
+});
