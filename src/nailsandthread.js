@@ -20,7 +20,7 @@ var Parser = {
 };
 
 var Grid = {
-  generate: function(options) {
+  generate: function(options, pixels) {
     //try an adjacency matrix for this for quick scanning
     var grid = {};
     grid.rows = [];
@@ -31,6 +31,15 @@ var Grid = {
       grid.rows[i] = [];
     }
     return grid;
+  },
+  storePixels: function(grid, pixels){
+    grid.pixelStore = [];
+    if (pixels.data.length % grid.size !== 0) console.log("storePixels ratio uneven; will affect results");
+    var ratio = pixels.data.length / grid.size;
+
+    for(var i=0;i<grid.size;i++){
+      grid.pixelStore[i] = {red: pixels.data[i*ratio], green: pixels.data[i*ratio + 1] , blue: pixels.data[i*ratio + 2]};
+    }
   },
   draw: function(grid, origin, next, pixelLine, pixels, thickness, color, pixelsToRender){
     //insert notes in the grid that you drew it.
@@ -47,47 +56,49 @@ var Grid = {
                           pixelsToRender.data[obj.index] += thickness.value; }
     });
   },
-  findNextPoint: function(origin, grid, pixels, color, thickness, pixelsToRender, counter){
-    //loop terminators
-    counter = counter || 0;
-    if (counter > 100) {return Grid.helpers.getLast(origin);}
-    //select next point
-    var next = Grid.helpers.selectNext(origin, grid, color, pixels);
-    if (next === false) return Grid.helpers.getLast(origin);
-
-    //get the pixels
-    var pixelLine = Grid.helpers.getPixels(origin, next, grid, pixels, color);
-    var valid = Grid.helpers.checkValidity(pixelLine, thickness);
-    if(valid === false) return Grid.findNextPoint(origin, grid, pixels, color, thickness, pixelsToRender, counter + 1);
-    
-    //draw the pixels and note in Grid
-    //console.log("drawing line from: " + origin + " to " + next);
-    Grid.draw(grid, origin, next, pixelLine, pixels, thickness, color, pixelsToRender);
-    return {next: next};
+  findNextPoint: function(origin, grid, pixels, color, thickness){
+    var list = Grid.helpers.farthestNodesFrom(origin, grid);
+    for(var i=0; i<grid.size-1;i++){
+      if(Grid.helpers.checkGridValidity(origin, list[i], grid, color, thickness) === true) {
+        var pixelLine = Grid.helpers.getPixels(origin, list[i], grid, pixels, color);
+        if(Grid.helpers.checkValidity(pixelLine, thickness)) return {pixelLine: pixelLine, next: list[i], prev: origin};
+      }
+    }
+    return false;
   },
   helpers: {
-    getRandom: function(grid){
-      return Math.floor(Math.random()*grid.size);
+    farthestNodesFrom: function(origin, grid){
+      var arr = [];
+      for(var i=0;i<grid.size;i++){
+        arr[i] = i;
+      }
+      return _.sortBy(arr, function(val){
+        var row1 = Math.floor(origin/grid.width);
+        var row2 = Math.floor(val/grid.width);
+        var rowSquared = Math.pow(row2-row1, 2);
+        var columnSquared = Math.pow((val - row2*grid.height) - (origin - row1*grid.height) , 2);
+        var triangular = Math.sqrt(columnSquared + rowSquared);
+        return triangular * -1;
+      });
     },
-    checkPopulated: function (origin, target, grid, color){
-      if (origin === target) return true;
-      if (grid.rows[origin][target] && grid.rows[origin][target][color] === 1) return true;
-      return false;
+    getRandom: function(grid, thickness, color){
+      return random();
+      function random(){
+        var rand = Math.floor(Math.random()*grid.size);
+        if (grid.pixelStore[rand][color] < thickness.margin) return random();
+        return rand;
+      }
+    },
+    checkGridValidity: function (origin, target, grid, color, thickness){
+      if (origin === target) return false;
+      if (grid.rows[origin][target] && grid.rows[origin][target][color] === 1) return false;
+      //we check against the value in GridReference because it is quick
+      //way to tell what the color values in the area are.
+      if (grid.pixelStore[target][color] < thickness.margin) return false;
+      return true;
     },
     checkValidity: function(pixelLine, thickness){
       return _.every(pixelLine, function(obj){return obj.value > thickness.margin;});
-    },
-    selectNext: function (origin, grid, color, pixels, counter){
-      counter = counter || 0;
-      if(counter > 200) return false;
-      //origin is int in grid. grid has grid.rows, height width size. color is "red". 
-      //pixels is imagedata. counter is a counter.
-      //So we should loop through the farthest points. Maybe generate an array of the 
-      //farthest points, check in line until find, rather than having a counter. 
-      //if no find, then start over. 
-      var x = Grid.helpers.getRandom(grid);
-      if(!Grid.helpers.checkPopulated(origin, x, grid, color)) return x;
-      return Grid.helpers.selectNext(origin, grid, color, pixels, counter + 1);
     },
     getLast: function (origin){
       //console.log("End of line.");
