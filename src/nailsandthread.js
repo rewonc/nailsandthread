@@ -85,11 +85,11 @@ var Grid = {
     //we want large queries to be infrequent. so lets have a random 
     //distro along the power curve.
     
-    //var rand = Math.random()*Math.log(50)/Math.LN10;
-    //var adjust = Math.floor(Math.pow(10, rand)-30);
-    //if (adjust < 0) adjust = 2;
-    //var radius = adjust; 
-    var list = Grid.helpers.nodesAdjacentTo(origin, grid, 4, color);
+    var rand = Math.random()*Math.log(50)/Math.LN10;
+    var adjust = Math.floor(Math.pow(10, rand)-30);
+    if (adjust < 0) adjust = 2;
+    var radius = adjust; 
+    var list = Grid.helpers.nodesAdjacentTo(origin, grid, radius, color);
     for(var i=0; i<list.length;i++){
       if(Grid.helpers.checkGridValidity(origin, list[i], grid, color, thickness) === true) {
         var pixelLine = Grid.helpers.getPixels(origin, list[i], grid, pixels, color);
@@ -146,7 +146,9 @@ var Grid = {
       if (grid.rows[origin][target] && grid.rows[origin][target][color] === 1) return false;
       //we check against the value in GridReference because it is quick
       //way to tell what the color values in the area are.
-      if (grid.pixelStore[target][color] < thickness.margin) return false;
+      
+      //introduces columns for some reason...
+      //if (grid.pixelStore[target][color] < thickness.margin) return false;
       return true;
     },
     checkValidity: function(pixelLine, thickness){
