@@ -110,7 +110,7 @@
       //Render the adjusted image...
       Canvas.putImage(source, pixels);
       $('#count').html(lines_count);
-      if (lines_count < 1) timeoutFn = setTimeout(iter, 10);
+      if (lines_count < 12000) timeoutFn = setTimeout(iter, 10);
     }
 
     $('#pause').click(function(){
