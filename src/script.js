@@ -11,7 +11,7 @@
     //todo: log starting lines.
 
     //grid is a (W*H)x(W*H) matrix, and tells us which node is linked to which node. It requires memory equivalent to (WxH)^2, so adjacency lists are better for graphs with many nodes. But this will work for img of size ~50x50.
-    var grid = Grid.generate({width: 35, height: 54});
+    var grid = Grid.generate({width: 70, height: 108});
     //Initial settings
     var lines_count = 0;
     var MAX_LINES_DRAWN_PER_THREAD = 1500;

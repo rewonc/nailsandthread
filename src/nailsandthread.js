@@ -44,15 +44,15 @@ var Grid = {
   draw: function(grid, origin, next, pixelLine, pixels, thread, pixelsToRender){
     grid.rows[origin][next] = thread.name;
     _.each(pixelLine, function(obj){
-      var adjustedRed = thread.red;
-      var adjustedGreen = thread.green;
-      var adjustedBlue = thread.blue;
+      var adjustedRed = obj.red - thread.red;
+      var adjustedGreen = obj.green - thread.green;
+      var adjustedBlue = obj.blue - thread.blue;
       pixels.data[obj.index] = adjustedRed;
       pixels.data[obj.index + 1] = adjustedGreen;
       pixels.data[obj.index + 2] = adjustedBlue;
-      pixelsToRender.data[obj.index] = thread.red; 
-      pixelsToRender.data[obj.index + 1] = thread.green; 
-      pixelsToRender.data[obj.index + 2] = thread.blue; 
+      pixelsToRender.data[obj.index] += thread.red; 
+      pixelsToRender.data[obj.index + 1] += thread.green; 
+      pixelsToRender.data[obj.index + 2] += thread.blue; 
     });
   },
   findNextByWalking: function(origin, grid, pixels, thread){
@@ -106,14 +106,13 @@ var Grid = {
       return _.shuffle(arr);
     },
     getRandom: function(grid, thread){
-      var MARGIN = 0.25;
+      var MARGIN = 0.75;
       return random();
       function random(){
         var rand = Math.floor(Math.random()*grid.size);
-        if (grid.pixelStore[rand]["red"] < thread.red - thread.red*MARGIN || grid.pixelStore[rand]["red"] > thread.red + thread.red*MARGIN) return random();
-        if (grid.pixelStore[rand]["green"] < thread.green - thread.green*MARGIN || grid.pixelStore[rand]["green"] > thread.green + thread.green*MARGIN) return random();
-        if (grid.pixelStore[rand]["blue"] < thread.blue - thread.blue*MARGIN || grid.pixelStore[rand]["blue"] > thread.blue + thread.blue*MARGIN) return random();
-
+        if (grid.pixelStore[rand]["red"] < thread.red*MARGIN) return random();
+        if (grid.pixelStore[rand]["green"] < thread.green*MARGIN) return random();
+        if (grid.pixelStore[rand]["blue"] < thread.blue*MARGIN) return random();
         return rand;
       }
     },
