@@ -18,6 +18,27 @@
     var MAX_LINES_OVERALL = 10000;
     var LINE_THICKNESS = {value: 35, margin: 35} 
     
+    var threads = [
+      {red: 76, green: 77, blue: 72, name: "forest green / gray"},
+      {red: 125, green: 56, blue: 61, name: "bright red"},
+      {red: 212, green: 157, blue: 165, name: "pink"},
+      {red: 196, green: 133, blue: 114, name: "peach"},
+      {red: 201, green: 105, blue: 97, name: "peach"},
+      {red: 201, green: 105, blue: 97, name: "peach"},
+      {red: 247, green: 237, blue: 239, name: "white pink"},
+      {red: 219, green: 219, blue: 217, name: "white"},
+      {red: 49, green: 70, blue: 99, name: "darkblue"},
+      {red: 105, green: 151, blue: 194, name: "lightbluee"},
+      {red: 105, green: 151, blue: 194, name: "lightbluee"},
+      {red: 158, green: 146, blue: 131, name: "brownish"},
+      {red: 132, green: 141, blue: 145, name: "grayblue"},
+      {red: 55, green: 61, blue: 92, name: "purp blue"},
+      {red: 195, green: 207, blue: 169, name: "lightgreen"},
+      {red: 85, green: 102, blue: 81, name: "greenish"},
+      {red: 74, green: 53, blue: 73, name: "purp"},
+      {red: 201, green: 194, blue: 189, name: "silva"},
+      {red: 153, green: 143, blue: 135, name: "dark silver"}
+    ];
 
     var drawColor = function(color, count, node, previous){
       if (count === 0) {console.log("line ended at " + MAX_LINES_DRAWN_PER_THREAD);lines_count+= MAX_LINES_DRAWN_PER_THREAD; return;}
