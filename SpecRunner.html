@@ -28,17 +28,17 @@
     var target = document.getElementById('target')
 
     //pixelLoader is a promise that will populate pixels when the image loads. Pixels stores what's left of the image; pixelsToRender is a store of what the algo is drawing.
-    var pixelLoader = Parser.getRGB(source, 'img/puppyimg.jpg');
+    var pixelLoader = Parser.getRGB(source, 'img/man.jpg');
     var pixels;
     var pixelsToRender;
     //todo: log starting lines.
 
     //grid is a (W*H)x(W*H) matrix, and tells us which node is linked to which node. It requires memory equivalent to (WxH)^2, so adjacency lists are better for graphs with many nodes. But this will work for img of size ~50x50.
-    var grid = Grid.generate({width: 70, height: 108});
+    var grid = Grid.generate({width: 35, height: 54});
     //Initial settings
     var lines_count = 0;
     var MAX_LINES_DRAWN_PER_THREAD = 5000;
-    var LINE_THICKNESS = {value: 64, margin: 64} 
+    var LINE_THICKNESS = {value: 35, margin: 35} 
     //max lines: how many total lines should be drawn per color?
     //If we estimate around 7x7 pixels per inch, maybe 4 thin threads would
     //cover each pixel. So each thread is 256/4 or 64 px in intensity.
@@ -110,7 +110,7 @@
       //Render the adjusted image...
       Canvas.putImage(source, pixels);
       $('#count').html(lines_count);
-      if (lines_count < 12000) timeoutFn = setTimeout(iter, 10);
+      if (lines_count < 6000) timeoutFn = setTimeout(iter, 10);
     }
 
     $('#pause').click(function(){
