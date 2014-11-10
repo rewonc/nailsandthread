@@ -14,21 +14,18 @@
     var grid = Grid.generate({width: 35, height: 54});
     //Initial settings
     var lines_count = 0;
-    var MAX_LINES_DRAWN_PER_THREAD = 5000;
-    var MAX_LINES_OVERALL = 10000;
-    var LINE_THICKNESS = {value: 35, margin: 35} 
-    
+    var MAX_LINES_DRAWN_PER_THREAD = 1500;
+    var MAX_LINES_OVERALL = 6000;
+    //5, 2, 6, 12, 15,  
     var threads = [
       {red: 76, green: 77, blue: 72, name: "forest green / gray"},
       {red: 125, green: 56, blue: 61, name: "bright red"},
       {red: 212, green: 157, blue: 165, name: "pink"},
       {red: 196, green: 133, blue: 114, name: "peach"},
       {red: 201, green: 105, blue: 97, name: "peach"},
-      {red: 201, green: 105, blue: 97, name: "peach"},
       {red: 247, green: 237, blue: 239, name: "white pink"},
       {red: 219, green: 219, blue: 217, name: "white"},
       {red: 49, green: 70, blue: 99, name: "darkblue"},
-      {red: 105, green: 151, blue: 194, name: "lightbluee"},
       {red: 105, green: 151, blue: 194, name: "lightbluee"},
       {red: 158, green: 146, blue: 131, name: "brownish"},
       {red: 132, green: 141, blue: 145, name: "grayblue"},
@@ -40,18 +37,18 @@
       {red: 153, green: 143, blue: 135, name: "dark silver"}
     ];
 
-    var drawColor = function(color, count, node, previous){
+    var drawColor = function(thread, count, node, previous){
       if (count === 0) {console.log("line ended at " + MAX_LINES_DRAWN_PER_THREAD);lines_count+= MAX_LINES_DRAWN_PER_THREAD; return;}
       var origin;
       if (node === undefined && previous === undefined){
-        origin = Grid.helpers.getRandom(grid, LINE_THICKNESS, color);
+        origin = Grid.helpers.getRandom(grid, thread);
       } else {
         origin = node; 
       }
-      var result = Grid.findNextByWalking(origin, grid, pixels, color, LINE_THICKNESS);
+      var result = Grid.findNextByWalking(origin, grid, pixels, thread);
       if (typeof result.next === "number")  {
-        Grid.draw(grid, origin, result.next, result.pixelLine, pixels, LINE_THICKNESS, color, pixelsToRender);
-        return drawColor(color, count - 1, result.next, result.prev);    
+        Grid.draw(grid, origin, result.next, result.pixelLine, pixels, thread, pixelsToRender);
+        return drawColor(thread, count - 1, result.next, result.prev);    
       }
       else {
         lines_count += MAX_LINES_DRAWN_PER_THREAD - count;
@@ -61,9 +58,10 @@
     
     var timeoutFn;
     var iter = function(){
-      drawColor("red", MAX_LINES_DRAWN_PER_THREAD);
-      drawColor("green", MAX_LINES_DRAWN_PER_THREAD);
-      drawColor("blue", MAX_LINES_DRAWN_PER_THREAD);
+      drawColor(threads[7], MAX_LINES_DRAWN_PER_THREAD);
+      drawColor(threads[11], MAX_LINES_DRAWN_PER_THREAD);
+      drawColor(threads[13], MAX_LINES_DRAWN_PER_THREAD);
+      drawColor(threads[1], MAX_LINES_DRAWN_PER_THREAD);
       Canvas.putImage(source, pixels);
       $('#count').html(lines_count);
       if (lines_count < MAX_LINES_OVERALL) timeoutFn = setTimeout(iter, 10);

@@ -41,46 +41,21 @@ var Grid = {
       grid.pixelStore[i] = {red: pixels.data[i*ratio], green: pixels.data[i*ratio + 1] , blue: pixels.data[i*ratio + 2]};
     }
   },
-  draw: function(grid, origin, next, pixelLine, pixels, thickness, color, pixelsToRender){
-    //insert notes in the grid that you drew it.
-    //console.log('drawing...');
-    var locus = grid.rows[origin][next];
-    if(locus === undefined) locus = {};
-    if (locus[color] === undefined) locus[color] = 0;
-    locus[color] +=1;
-    grid.rows[origin][next] = locus;
-    //Don't draw on the pixel store, as its a reference.
-    //grid.pixelStore[origin][color] += -1*thickness.value;
+  draw: function(grid, origin, next, pixelLine, pixels, thread, pixelsToRender){
+    grid.rows[origin][next] = thread.name;
     _.each(pixelLine, function(obj){
-      var adjusted = obj.value - thickness.value;
-      if (adjusted > 0) { pixels.data[obj.index] = adjusted;
-                          pixelsToRender.data[obj.index] += thickness.value; }
-      else              { pixels.data[obj.index] = 0; 
-                          pixelsToRender.data[obj.index] += thickness.value; }
+      var adjustedRed = thread.red;
+      var adjustedGreen = thread.green;
+      var adjustedBlue = thread.blue;
+      pixels.data[obj.index] = adjustedRed;
+      pixels.data[obj.index + 1] = adjustedGreen;
+      pixels.data[obj.index + 2] = adjustedBlue;
+      pixelsToRender.data[obj.index] = thread.red; 
+      pixelsToRender.data[obj.index + 1] = thread.green; 
+      pixelsToRender.data[obj.index + 2] = thread.blue; 
     });
   },
-  findNextPointFarthest: function(origin, grid, pixels, color, thickness){
-    var list = Grid.helpers.farthestNodesFrom(origin, grid);
-    for(var i=0; i<grid.size-1;i+=Math.floor(Math.random()*100)){
-      if(Grid.helpers.checkGridValidity(origin, list[i], grid, color, thickness) === true) {
-        var pixelLine = Grid.helpers.getPixels(origin, list[i], grid, pixels, color);
-        if(Grid.helpers.checkValidity(pixelLine, thickness)) return {pixelLine: pixelLine, next: list[i], prev: origin};
-      }
-    }
-    return false;
-  },
-  findNextPointRandom: function(origin, grid, pixels, color, thickness){
-    var randomPt = [];
-    for (var i=0;i<grid.size/10;i++){
-      randomPt[i] = Grid.helpers.getRandom(grid, thickness, color);
-      if(Grid.helpers.checkGridValidity(origin, randomPt[i], grid, color, thickness) === true) {
-        var pixelLine = Grid.helpers.getPixels(origin, randomPt[i], grid, pixels, color);
-        if(Grid.helpers.checkValidity(pixelLine, thickness)) return {pixelLine: pixelLine, next: randomPt[i], prev: origin};
-      }
-    }
-    return false;
-  },
-  findNextByWalking: function(origin, grid, pixels, color, thickness){
+  findNextByWalking: function(origin, grid, pixels, thread){
     //Find adjacent lines
     //we want large queries to be infrequent. so lets have a random 
     //distro along the power curve.
@@ -89,11 +64,11 @@ var Grid = {
     var adjust = Math.floor(Math.pow(10, rand)-30);
     if (adjust < 0) adjust = 2;
     var radius = adjust; 
-    var list = Grid.helpers.nodesAdjacentTo(origin, grid, radius, color);
+    var list = Grid.helpers.nodesAdjacentTo(origin, grid, radius);
     for(var i=0; i<list.length;i++){
-      if(Grid.helpers.checkGridValidity(origin, list[i], grid, color, thickness) === true) {
-        var pixelLine = Grid.helpers.getPixels(origin, list[i], grid, pixels, color);
-        if(Grid.helpers.checkValidity(pixelLine, thickness)) return {pixelLine: pixelLine, next: list[i], prev: origin};
+      if(Grid.helpers.checkGridValidity(origin, list[i], grid) === true) {
+        var pixelLine = Grid.helpers.getPixels(origin, list[i], grid, pixels);
+        if(Grid.helpers.checkValidity(pixelLine, thread)) return {pixelLine: pixelLine, next: list[i], prev: origin};
       }
     }
     return false;
@@ -113,7 +88,7 @@ var Grid = {
         return triangular * -1;
       });
     },
-    nodesAdjacentTo: function(origin, grid, radius, color, mock){
+    nodesAdjacentTo: function(origin, grid, radius, mock){
       var arr = [];
       //turn to rc
       var rcPoint = Grid.helpers.convertToRC(origin, grid.width, grid.height);
@@ -129,36 +104,38 @@ var Grid = {
       }
       if (mock === true) return arr;
       return _.shuffle(arr);
-      //return _.sortBy(arr, function(val){
-      //  return grid.pixelStore[val][color];
-      //});
     },
-    getRandom: function(grid, thickness, color){
+    getRandom: function(grid, thread){
+      var MARGIN = 0.25;
       return random();
       function random(){
         var rand = Math.floor(Math.random()*grid.size);
-        if (grid.pixelStore[rand][color] < thickness.margin) return random();
+        if (grid.pixelStore[rand]["red"] < thread.red - thread.red*MARGIN || grid.pixelStore[rand]["red"] > thread.red + thread.red*MARGIN) return random();
+        if (grid.pixelStore[rand]["green"] < thread.green - thread.green*MARGIN || grid.pixelStore[rand]["green"] > thread.green + thread.green*MARGIN) return random();
+        if (grid.pixelStore[rand]["blue"] < thread.blue - thread.blue*MARGIN || grid.pixelStore[rand]["blue"] > thread.blue + thread.blue*MARGIN) return random();
+
         return rand;
       }
     },
-    checkGridValidity: function (origin, target, grid, color, thickness){
+    checkGridValidity: function (origin, target, grid){
       if (origin === target) return false;
-      if (grid.rows[origin][target] && grid.rows[origin][target][color] === 1) return false;
-      //we check against the value in GridReference because it is quick
-      //way to tell what the color values in the area are.
-      
-      //introduces columns for some reason...
-      //if (grid.pixelStore[target][color] < thickness.margin) return false;
+      if (grid.rows[origin][target]) return false;
       return true;
     },
-    checkValidity: function(pixelLine, thickness){
-      return _.every(pixelLine, function(obj){return obj.value > thickness.margin;});
+    checkValidity: function(pixelLine, thread){
+      var MARGIN = 0.75;
+      return _.every(pixelLine, function(obj){
+        if (obj.red < thread.red*MARGIN) return false;
+        if (obj.green < thread.green*MARGIN) return false;
+        if (obj.blue < thread.blue*MARGIN) return false;
+        return true;
+      });
     },
     getLast: function (origin){
       //console.log("End of line.");
       return false;
     },
-    getPixels: function(origin, next, grid, pixels, color){
+    getPixels: function(origin, next, grid, pixels){
       var gridLength = grid.size;
       var pixelLength = pixels.data.length / 4;
       if (pixelLength % gridLength !== 0) console.log('Warning: Grid/pixel ratio off balance. Balance for better results.');
@@ -167,30 +144,25 @@ var Grid = {
       var originImg = Grid.helpers.scaleToImage(rcOrigin, grid.width, grid.height, pixels.width, pixels.height);
       var nextImg = Grid.helpers.scaleToImage(rcNext, grid.width, grid.height, pixels.width, pixels.height);
       var slope = Grid.helpers.findSlope(originImg, nextImg);
-      return Grid.helpers.pixellate(originImg, nextImg, slope, color, pixels);
+      return Grid.helpers.pixellate(originImg, nextImg, slope, pixels);
     },
-    pixellate: function(origin, next, slope, color, pixels){
+    pixellate: function(origin, next, slope, pixels){
       //slope in form: {"start_with":"rows","increment":1,"slope":0.6341463414634146,"count":410} 
       var i = 1;
       var res = [];
-      var shift;
-      if(color === "red")   shift=0;
-      if(color === "green") shift=1;
-      if(color === "blue")  shift=2;
-      //console.log(JSON.stringify(slope));
       if (slope.start_with === "rows"){
         for(;i<slope.count;i++){
           (function(i){
-            var index = Grid.helpers.rcToPixels(origin.row+(i*slope.increment), Math.round(origin.column+i*slope.slope), pixels.width, pixels.height, shift);
-            res.push({index: index, value: pixels.data[index] });
+            var index = Grid.helpers.rcToPixels(origin.row+(i*slope.increment), Math.round(origin.column+i*slope.slope), pixels.width, pixels.height, 0);
+            res.push({index: index, red: pixels.data[index], green: pixels.data[index+1], blue: pixels.data[index+2] });
           })(i);
         }
       } else{
 
         for(;i<slope.count;i++){
           (function(i){
-            var index = Grid.helpers.rcToPixels(Math.round(origin.row+i*slope.slope), origin.column+(i*slope.increment), pixels.width, pixels.height, shift);
-            res.push({index: index, value: pixels.data[index]});
+            var index = Grid.helpers.rcToPixels(Math.round(origin.row+i*slope.slope), origin.column+(i*slope.increment), pixels.width, pixels.height, 0);
+            res.push({index: index, red: pixels.data[index], green: pixels.data[index+1], blue: pixels.data[index+2] });
           })(i);
         }
       }
