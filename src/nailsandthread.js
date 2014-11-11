@@ -110,9 +110,9 @@ var Grid = {
       return random();
       function random(){
         var rand = Math.floor(Math.random()*grid.size);
-        if (grid.pixelStore[rand]["red"] < thread.red*MARGIN) return random();
-        if (grid.pixelStore[rand]["green"] < thread.green*MARGIN) return random();
-        if (grid.pixelStore[rand]["blue"] < thread.blue*MARGIN) return random();
+        if (grid.pixelStore[rand].red < thread.red*MARGIN) return random();
+        if (grid.pixelStore[rand].green < thread.green*MARGIN) return random();
+        if (grid.pixelStore[rand].blue < thread.blue*MARGIN) return random();
         return rand;
       }
     },
@@ -188,8 +188,6 @@ var Grid = {
         count = Math.abs(colDiff);
       }
       return {start_with: startWith, increment: increment, slope: slope, count: count};
-
-
     },
     convertToRC: function (point, width, height){
       var row = Math.floor(point / width);
@@ -197,6 +195,28 @@ var Grid = {
     },
     scaleToImage: function(rcPoint, width1, height1, width2, height2){
       return {row: height2/height1*rcPoint.row, column: width2/width1*rcPoint.column};
+    },
+    RGBtoCMYK: function(obj){
+      var red = obj.red/255,
+        green = obj.green/255,
+         blue = obj.blue/255,  
+            k = 1 - Math.max(red, green, blue),
+            c, m, y;
+      if (k === 1) {
+        return {c: 0, m: 0, y: 0, k: 1};
+      } else{
+        c = (1 - red - k) / (1 - k);
+        m = (1 - green - k) / (1 - k);
+        y = (1 - blue - k) / (1 - k);
+        return {c: c, m: m, y: y, k: k};
+      }
+    },
+    CMYKtoRGB: function(obj){
+      return {
+        red: 255 * (1-obj.c) * (1-obj.k),
+        green: 255 * (1-obj.m) * (1-obj.k),
+        blue: 255 * (1-obj.y) * (1-obj.k),
+      };
     }
   }
 };

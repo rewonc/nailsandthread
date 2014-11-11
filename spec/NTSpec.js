@@ -96,3 +96,20 @@ describe("nodesAdjacentTo", function(){
   });
 
 });
+
+describe("RGB to CMYK conversions", function(){
+
+  it("should output the right values for rgb to cmyk", function(){
+    expect(Grid.helpers.RGBtoCMYK({red: 0, green: 0, blue: 0})).toEqual({c: 0, m: 0, y: 0, k: 1});
+    expect(Grid.helpers.RGBtoCMYK({red: 255, green: 0, blue: 0})).toEqual({c: 0, m: 1, y: 1, k: 0});
+    expect(Grid.helpers.RGBtoCMYK({red: 0, green: 255, blue: 0})).toEqual({c: 1, m: 0, y: 1, k: 0});
+    expect(Grid.helpers.RGBtoCMYK({red: 0, green: 255, blue: 255})).toEqual({c: 1, m: 0, y: 0, k: 0});
+  });
+
+  it("should output the right values for cmyk to rgb", function(){
+    expect(Grid.helpers.CMYKtoRGB({c: 1, m: 0, y: 1, k: 0})).toEqual({red: 0, green: 255, blue: 0});
+    expect(Grid.helpers.CMYKtoRGB({c: 0, m: 1, y: 0, k: 0})).toEqual({red: 255, green: 0, blue: 255});
+    expect(Grid.helpers.CMYKtoRGB({c: 0, m: 0, y: 0, k: 1})).toEqual({red: 0, green: 0, blue: 0});
+  })
+
+})
