@@ -5,7 +5,7 @@
     var target = document.getElementById('target')
 
     //pixelLoader is a promise that will populate pixels when the image loads. Pixels stores what's left of the image; pixelsToRender is a store of what the algo is drawing.
-    var pixelLoader = Parser.getRGB(source, 'img/puppyimg.jpg');
+    var pixelLoader = Parser.getRGB(source, 'img/puppy-whitebg.jpg');
     var pixels;
     var pixelsToRender;
     //todo: log starting lines.
@@ -28,7 +28,7 @@
       {c: 0.5, m: 0, y: 0, k: 0, name: "midcyan"},
       {c: 0, m: 0.5, y: 0, k: 0, name: "midmagenta"},
       {c: 0, m: 0, y: 0.5, k: 0, name: "midyellow"},
-      {c: 0, m: 0, y: 0, k: 0.5, name: "midgray"},
+      {c: 0, m: 0, y: 0, k: 0.9, name: "midgray"},
       /*{red: 105, green: 151, blue: 194, name: "lightbluee"},
       {red: 158, green: 146, blue: 131, name: "brownish"},
       {red: 132, green: 141, blue: 145, name: "grayblue"},
