@@ -38,21 +38,30 @@ var Grid = {
     var ratio = pixels.data.length / grid.size;
 
     for(var i=0;i<grid.size;i++){
-      grid.pixelStore[i] = {red: pixels.data[i*ratio], green: pixels.data[i*ratio + 1] , blue: pixels.data[i*ratio + 2]};
+      grid.pixelStore[i] = Grid.helpers.RGBtoCMYK({red: pixels.data[i*ratio], green: pixels.data[i*ratio + 1] , blue: pixels.data[i*ratio + 2]});
     }
   },
   draw: function(grid, origin, next, pixelLine, pixels, thread, pixelsToRender){
     grid.rows[origin][next] = thread.name;
     _.each(pixelLine, function(obj){
-      var adjustedRed = obj.red - thread.red;
-      var adjustedGreen = obj.green - thread.green;
-      var adjustedBlue = obj.blue - thread.blue;
-      pixels.data[obj.index] = adjustedRed;
-      pixels.data[obj.index + 1] = adjustedGreen;
-      pixels.data[obj.index + 2] = adjustedBlue;
-      pixelsToRender.data[obj.index] += thread.red; 
-      pixelsToRender.data[obj.index + 1] += thread.green; 
-      pixelsToRender.data[obj.index + 2] += thread.blue; 
+      var cmyk = Grid.helpers.RGBtoCMYK(obj);
+      var adjusted = {};
+      adjusted.c = cmyk.c - thread.c;
+      adjusted.m = cmyk.m - thread.m;
+      adjusted.y = cmyk.y - thread.y;
+      adjusted.k = cmyk.k - thread.k;
+
+      var adjustedRGB = Grid.helpers.CMYKtoRGB(adjusted); 
+      var threadRGB = Grid.helpers.CMYKtoRGB(thread);
+
+      //render subtraction to existng canvas
+      pixels.data[obj.index] = adjustedRGB.red;
+      pixels.data[obj.index + 1] = adjustedRGB.green;
+      pixels.data[obj.index + 2] = adjustedRGB.blue;
+      //render addition to new canvas
+      pixelsToRender.data[obj.index] = threadRGB.red; 
+      pixelsToRender.data[obj.index + 1] = threadRGB.green; 
+      pixelsToRender.data[obj.index + 2] = threadRGB.blue; 
     });
   },
   findNextByWalking: function(origin, grid, pixels, thread){
@@ -110,9 +119,13 @@ var Grid = {
       return random();
       function random(){
         var rand = Math.floor(Math.random()*grid.size);
-        if (grid.pixelStore[rand].red < thread.red*MARGIN) return random();
-        if (grid.pixelStore[rand].green < thread.green*MARGIN) return random();
-        if (grid.pixelStore[rand].blue < thread.blue*MARGIN) return random();
+        if (grid.pixelStore.c< thread.c) return random();
+        if (grid.pixelStore.m< thread.m) return random();
+        if (grid.pixelStore.y< thread.y) return random();
+        if (grid.pixelStore.k< thread.k) return random();
+        //if (grid.pixelStore[rand].red < thread.red*MARGIN) return random();
+        //if (grid.pixelStore[rand].green < thread.green*MARGIN) return random();
+        //if (grid.pixelStore[rand].blue < thread.blue*MARGIN) return random();
         return rand;
       }
     },
@@ -122,11 +135,18 @@ var Grid = {
       return true;
     },
     checkValidity: function(pixelLine, thread){
-      var MARGIN = 0.75;
       return _.every(pixelLine, function(obj){
+        var cmyk = Grid.helpers.RGBtoCMYK(obj);
+        if (cmyk.c< thread.c) return false;
+        if (cmyk.m< thread.m) return false;
+        if (cmyk.y< thread.y) return false;
+        if (cmyk.k< thread.k) return false;
+        /*
+      var MARGIN = 0.75;
         if (obj.red < thread.red*MARGIN) return false;
         if (obj.green < thread.green*MARGIN) return false;
         if (obj.blue < thread.blue*MARGIN) return false;
+        */
         return true;
       });
     },
@@ -230,6 +250,9 @@ var Canvas = {
     var context = canvas.getContext('2d');
     var imgdata = context.createImageData(width, height);
     for(var i=0; i<imgdata.data.length; i+=4){
+      imgdata.data[i+0] = 255;
+      imgdata.data[i+1] = 255;
+      imgdata.data[i+2] = 255;
       imgdata.data[i+3] = opacity;
     }
     return imgdata;
