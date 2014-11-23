@@ -90,12 +90,8 @@
       var graph = new Graph(pixels, {width: 40, height: 40});
       //console.log(grid);
       console.log(graph);
-      console.log(graph.getNodeValue(0));
-      console.log(graph.getNodeValue(1));
-      console.log(graph.getNodeValue(2));
-      console.log(graph.getNodeValue(10));
-      console.log(graph.getNodeValue(1000));
-      console.log(graph.getNodeValue(1020));
+      console.log(graph.getMiddleNodes(0, 121));
+
       pixelsToRender = Canvas.newImageData(target, pixels.width, pixels.height, 255);
       //iter();
     });

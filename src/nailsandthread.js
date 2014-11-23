@@ -34,7 +34,6 @@ var Graph = function(data, options){
   this.pixels = data.data;
 
   //for calculating next rows in subsequent functions
-  this.indicesPerRow = this.imageWidth * 4;
   this.heightRatio = this.imageHeight / this.height;
   this.widthRatio = this.imageWidth / this.width;
 
@@ -42,36 +41,59 @@ var Graph = function(data, options){
   this.ratio = this.pixels.length/this.size;
 };
 
+
 var Helpers = {
-  RGBtoCMYK: function(obj){
-      var red = obj.red/255,
-        green = obj.green/255,
-         blue = obj.blue/255,  
-            k = 1 - Math.max(red, green, blue),
-            c, m, y;
-      if (k === 1) {
-        return {c: 0, m: 0, y: 0, k: 1};
-      } else{
-        c = (1 - red - k) / (1 - k);
-        m = (1 - green - k) / (1 - k);
-        y = (1 - blue - k) / (1 - k);
-        return {c: c, m: m, y: y, k: k};
-      }
+  RGBtoCMYK: function(red, green, blue){
+    var red1 = red/255,
+      green1 = green/255,
+       blue1 = blue/255,  
+          k = 1 - Math.max(red1, green1, blue1),
+          c, m, y;
+    if (k === 1) {
+      return {c: 0, m: 0, y: 0, k: 1};
+    } else{
+      c = (1 - red1 - k) / (1 - k);
+      m = (1 - green1 - k) / (1 - k);
+      y = (1 - blue1 - k) / (1 - k);
+      return {c: c, m: m, y: y, k: k};
     }
+  },
+  convertToRC: function (point, width){
+    var row = Math.floor(point / width);
+    return {row: row, column: point - width*row};
+  },
+  rcToIndex: function(row, column, width){
+    return (row*width) + column;
+  },
+  findSlope: function(origin, next){
+    var rowDiff = next.row - origin.row;
+    var colDiff = next.column - origin.column;
+    var startWith, increment, slope, count;
+    if (Math.abs(rowDiff) >= Math.abs(colDiff)) {
+      startWith = "rows";
+      increment = rowDiff < 0 ? -1 : 1;
+      slope = colDiff/rowDiff*increment;
+      count = Math.abs(rowDiff);
+    } else {
+      startWith = "columns";
+      increment = colDiff < 0 ? -1 : 1;
+      slope = rowDiff/colDiff*increment;
+      count = Math.abs(colDiff);
+    }
+    return {start_with: startWith, increment: increment, slope: slope, count: count};
+  }
 };
 
 Graph.prototype.getNodeValue = function(index){
   //Iterate through the rectangle of pixels covered by each node
-
   var height = this.heightRatio,
-      jump = this.indicesPerRow,
-      width = this.widthRatio,
+      jump = this.imageWidth*4,
+      width = this.widthRatio*4,
       convertedIndex = index*this.ratio,
       acc = {c: 0, m: 0, y: 0, k: 0},
       i, j;
-
   var addToAcc = function(index, ctx){
-    var cmyk = Helpers.RGBtoCMYK({red: ctx.pixels[index], green: ctx.pixels[index+1], blue: ctx.pixels[index+2]});
+    var cmyk = Helpers.RGBtoCMYK(ctx.pixels[index], ctx.pixels[index+1], ctx.pixels[index+2]);
     acc.c += cmyk.c;
     acc.m += cmyk.m;
     acc.y += cmyk.y;
@@ -90,6 +112,34 @@ Graph.prototype.getNodeValue = function(index){
     return this.nodes[index];
   }
 };
+
+
+Graph.prototype.getMiddleNodes = function(first, second){
+  //Return an array of affected nodes & distance (num of pixels drawn) by a line draw operation between two nodes
+  //first and second are integers
+  var width = this.width,
+      height = this.height,
+      rc1 = Helpers.convertToRC(first, width),
+      rc2 = Helpers.convertToRC(second, width),
+      slope = Helpers.findSlope(rc1, rc2);
+
+  //slope in form: {"start_with":"rows","increment":1,"slope":0.6341463414634146,"count":410} 
+  var i = 0;
+  var index;
+  var res = [];
+  if (slope.start_with === "rows"){
+    for(;i<slope.count;i++){
+      res.push( Helpers.rcToIndex(rc1.row+(i*slope.increment), Math.floor(rc1.column+i*slope.slope), width) );
+    }
+  } else{
+    for(;i<slope.count;i++){
+      res.push( Helpers.rcToIndex(Math.floor(rc1.row+i*slope.slope), rc1.column+(i*slope.increment), width) );
+    }
+  }
+  return _.uniq(res);
+
+};
+
 
 var Grid = {
   generate: function(options) {
