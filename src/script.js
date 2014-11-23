@@ -1,8 +1,9 @@
-'use strict';
+
   $(function(){
+    'use strict';
     //These are the canvases on the page
     var source = document.getElementById('source');
-    var target = document.getElementById('target')
+    var target = document.getElementById('target');
 
     //pixelLoader is a promise that will populate pixels when the image loads. Pixels stores what's left of the image; pixelsToRender is a store of what the algo is drawing.
     var pixelLoader = Parser.getRGB(source, 'img/400x400-dog.jpg');
@@ -43,7 +44,7 @@
         lines_count += MAX_LINES_DRAWN_PER_THREAD - count;
         return;
       }
-    }
+    };
     
     var timeoutFn;
     var iter = function(){
@@ -54,7 +55,7 @@
       Canvas.putImage(source, pixels);
       $('#count').html(lines_count);
       if (lines_count < MAX_LINES_OVERALL) timeoutFn = setTimeout(iter, 10);
-    }
+    };
 
     $('#pause').click(function(){
       clearTimeout(timeoutFn);
@@ -86,10 +87,17 @@
         grid = Grid.generate({width: 40, height: 40});
         Grid.storePixels(grid, pixels);
       }
-      console.log(grid);
-     
+      var graph = new Graph(pixels, {width: 40, height: 40});
+      //console.log(grid);
+      console.log(graph);
+      console.log(graph.getNodeValue(0));
+      console.log(graph.getNodeValue(1));
+      console.log(graph.getNodeValue(2));
+      console.log(graph.getNodeValue(10));
+      console.log(graph.getNodeValue(1000));
+      console.log(graph.getNodeValue(1020));
       pixelsToRender = Canvas.newImageData(target, pixels.width, pixels.height, 255);
-      iter();
+      //iter();
     });
 
       

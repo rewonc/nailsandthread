@@ -18,6 +18,79 @@ var Parser = {
   }
 };
 
+
+
+var Graph = function(data, options){
+  this.nodes = [];
+  this.edges = [];
+  this.size = options.height*options.width;
+  this.width = options.width;
+  this.height = options.height;
+  for(var i=0, len=this.size;i<len;i++){
+      this.nodes[i] = null;
+  }
+  this.imageHeight = data.height;
+  this.imageWidth = data.width;
+  this.pixels = data.data;
+
+  //for calculating next rows in subsequent functions
+  this.indicesPerRow = this.imageWidth * 4;
+  this.heightRatio = this.imageHeight / this.height;
+  this.widthRatio = this.imageWidth / this.width;
+
+  if (this.pixels.length % this.size !== 0) console.log("Graph / Image ratio uneven; choose a proportional ratio");
+  this.ratio = this.pixels.length/this.size;
+};
+
+var Helpers = {
+  RGBtoCMYK: function(obj){
+      var red = obj.red/255,
+        green = obj.green/255,
+         blue = obj.blue/255,  
+            k = 1 - Math.max(red, green, blue),
+            c, m, y;
+      if (k === 1) {
+        return {c: 0, m: 0, y: 0, k: 1};
+      } else{
+        c = (1 - red - k) / (1 - k);
+        m = (1 - green - k) / (1 - k);
+        y = (1 - blue - k) / (1 - k);
+        return {c: c, m: m, y: y, k: k};
+      }
+    }
+};
+
+Graph.prototype.getNodeValue = function(index){
+  //Iterate through the rectangle of pixels covered by each node
+
+  var height = this.heightRatio,
+      jump = this.indicesPerRow,
+      width = this.widthRatio,
+      convertedIndex = index*this.ratio,
+      acc = {c: 0, m: 0, y: 0, k: 0},
+      i, j;
+
+  var addToAcc = function(index, ctx){
+    var cmyk = Helpers.RGBtoCMYK({red: ctx.pixels[index], green: ctx.pixels[index+1], blue: ctx.pixels[index+2]});
+    acc.c += cmyk.c;
+    acc.m += cmyk.m;
+    acc.y += cmyk.y;
+    acc.k += cmyk.k;
+  };
+
+  if(this.nodes[index] === null){
+    for(i=0;i<height;i++){
+      for(j=0;j<width;j+=4){
+        addToAcc(convertedIndex + jump*i + j, this);
+      }
+    }
+    this.nodes[index] = acc;
+    return acc;
+  } else {
+    return this.nodes[index];
+  }
+};
+
 var Grid = {
   generate: function(options) {
     //try an adjacency matrix for this for quick scanning
