@@ -13,7 +13,6 @@ var Parser = {
         resolve(context.getImageData(0,0,canvas.width,canvas.height));
       };
     });
-    
     img.src = url;
     return result;
   }
@@ -63,7 +62,7 @@ var Grid = {
     };
 
     for(var i=0;i<grid.size;i++){
-      grid.pixelStore[i] = aggregateColors(i, ratio, pixels); 
+      grid.pixelStore[i] = aggregateColors(i*ratio*4, ratio, pixels); 
     }
   },
   draw: function(grid, origin, next, pixelLine, pixels, thread, pixelsToRender){
@@ -264,10 +263,6 @@ var Grid = {
       };
     }
   }
-};
-
-var Adapter = {
-
 };
 
 var Canvas = {

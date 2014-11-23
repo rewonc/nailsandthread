@@ -20,10 +20,10 @@
 
 
     var threads = [
-      {c: 1, m: 0, y: 0, k: 0, name: "midcyan"},
-      {c: 0, m: 1, y: 0, k: 0, name: "midmagenta"},
-      {c: 0, m: 0, y: 1, k: 0, name: "midyellow"},
-      {c: 0, m: 0, y: 0, k: 1, name: "midgray"},
+      {c: 0.1, m: 0, y: 0, k: 0, name: "midcyan"},
+      {c: 0, m: 0.1, y: 0, k: 0, name: "midmagenta"},
+      {c: 0, m: 0, y: 0.1, k: 0, name: "midyellow"},
+      {c: 0, m: 0, y: 0, k: 0.1, name: "midgray"},
     ];
 
     var drawColor = function(thread, count, node, previous){
@@ -75,21 +75,21 @@
     pixelLoader.then(function(val){
       pixels = val;
       console.log('starting...');
-      console.log(localStorage);
       if (localStorage && localStorage.getItem("grid") ){
         grid = JSON.parse(localStorage.getItem("grid"));
       } else if (localStorage) {
+        console.log("Grid loaded from storage");
         grid = Grid.generate({width: 40, height: 40});
-        //Grid.storePixels(grid, pixels);
+        Grid.storePixels(grid, pixels);
         localStorage.setItem("grid", JSON.stringify(grid));
       } else{
         grid = Grid.generate({width: 40, height: 40});
-        //Grid.storePixels(grid, pixels);
+        Grid.storePixels(grid, pixels);
       }
       console.log(grid);
      
       pixelsToRender = Canvas.newImageData(target, pixels.width, pixels.height, 255);
-      //iter();
+      iter();
     });
 
       
