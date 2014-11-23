@@ -5,39 +5,25 @@
     var target = document.getElementById('target')
 
     //pixelLoader is a promise that will populate pixels when the image loads. Pixels stores what's left of the image; pixelsToRender is a store of what the algo is drawing.
-    var pixelLoader = Parser.getRGB(source, 'img/puppy-whitebg.jpg');
+    var pixelLoader = Parser.getRGB(source, 'img/400x400-dog.jpg');
     var pixels;
     var pixelsToRender;
-    //todo: log starting lines.
 
     //grid is a (W*H)x(W*H) matrix, and tells us which node is linked to which node. It requires memory equivalent to (WxH)^2, so adjacency lists are better for graphs with many nodes. But this will work for img of size ~50x50.
-    var grid = Grid.generate({width: 35, height: 54});
+    var grid = Grid.generate({width: 40, height: 40});
+    //gridAverages will later describe the 
+    var gridAverages;
     //Initial settings
     var lines_count = 0;
     var MAX_LINES_DRAWN_PER_THREAD = 1500;
-    var MAX_LINES_OVERALL = 6000;
-    //5, 2, 6, 12, 15,  
+    var MAX_LINES_OVERALL = 14000;
+
+
     var threads = [
-      /*{red: 76, green: 77, blue: 72, name: "forest green / gray"},
-      {red: 125, green: 56, blue: 61, name: "bright red"},
-      {red: 212, green: 157, blue: 165, name: "pink"},
-      {red: 196, green: 133, blue: 114, name: "peach"},
-      {red: 201, green: 105, blue: 97, name: "peach"},
-      {red: 247, green: 237, blue: 239, name: "white pink"},
-      {red: 219, green: 219, blue: 217, name: "white"},*/
-      {c: 0.5, m: 0, y: 0, k: 0, name: "midcyan"},
-      {c: 0, m: 0.5, y: 0, k: 0, name: "midmagenta"},
-      {c: 0, m: 0, y: 0.5, k: 0, name: "midyellow"},
-      {c: 0, m: 0, y: 0, k: 0.9, name: "midgray"},
-      /*{red: 105, green: 151, blue: 194, name: "lightbluee"},
-      {red: 158, green: 146, blue: 131, name: "brownish"},
-      {red: 132, green: 141, blue: 145, name: "grayblue"},
-      {red: 55, green: 61, blue: 92, name: "purp blue"},
-      {red: 195, green: 207, blue: 169, name: "lightgreen"},
-      {red: 85, green: 102, blue: 81, name: "greenish"},
-      {red: 74, green: 53, blue: 73, name: "purp"},
-      {red: 201, green: 194, blue: 189, name: "silva"},
-      {red: 153, green: 143, blue: 135, name: "dark silver"}*/
+      {c: 0.2, m: 0, y: 0, k: 0, name: "midcyan"},
+      {c: 0, m: 0.2, y: 0, k: 0, name: "midmagenta"},
+      {c: 0, m: 0, y: 0.2, k: 0, name: "midyellow"},
+      {c: 0, m: 0, y: 0, k: 0.2, name: "midgray"},
     ];
 
     var drawColor = function(thread, count, node, previous){
@@ -82,7 +68,7 @@
       Canvas.putImage(target, pixelsToRender);
     });
 
-
+    //start the algorithm on image load
     pixelLoader.then(function(val){
       pixels = val;
       console.log('starting...');

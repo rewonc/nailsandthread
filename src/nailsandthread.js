@@ -59,9 +59,9 @@ var Grid = {
       pixels.data[obj.index + 1] = adjustedRGB.green;
       pixels.data[obj.index + 2] = adjustedRGB.blue;
       //render addition to new canvas
-      pixelsToRender.data[obj.index] = threadRGB.red; 
-      pixelsToRender.data[obj.index + 1] = threadRGB.green; 
-      pixelsToRender.data[obj.index + 2] = threadRGB.blue; 
+      pixelsToRender.data[obj.index] += (threadRGB.red - 255) ;
+      pixelsToRender.data[obj.index + 1] += (threadRGB.green - 255); 
+      pixelsToRender.data[obj.index + 2] += (threadRGB.blue - 255);
     });
   },
   findNextByWalking: function(origin, grid, pixels, thread){
