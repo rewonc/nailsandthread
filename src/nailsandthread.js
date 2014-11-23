@@ -140,6 +140,17 @@ Graph.prototype.getMiddleNodes = function(first, second){
 
 };
 
+Graph.prototype.verifyMiddleNodes = function(first, second, color, multiplier){
+
+}
+
+Graph.prototype.connectNodes = function(first, second, color, multiplier){
+  
+}
+
+Graph.prototype.renderNodes = function(canvas){
+  //Given a set of edges and nodes, render onto canvas
+}
 
 var Grid = {
   generate: function(options) {
