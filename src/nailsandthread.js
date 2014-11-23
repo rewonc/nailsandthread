@@ -35,10 +35,35 @@ var Grid = {
   storePixels: function(grid, pixels){
     grid.pixelStore = [];
     if (pixels.data.length % grid.size !== 0) console.log("storePixels ratio uneven; will affect results");
+    
+    //each pixel will store the aggregated color information from the pixels in its grid.
     var ratio = pixels.data.length / grid.size;
 
+    var aggregateColors = function(element, ratio, pixels){
+      //needs to loop from element to element + ratio (not inclusive)
+      //both ways
+      var width = pixels.width;
+      var res = {c: 0, m: 0, y: 0, k: 0};
+
+      var addToRes = function(count){
+        var cmyk = Grid.helpers.RGBtoCMYK({red: pixels.data[count], green: pixels.data[count+1], blue: pixels.data[count+2]});
+        res.c += cmyk.c;
+        res.m += cmyk.m;
+        res.y += cmyk.y;
+        res.k += cmyk.k;
+      };
+
+      for (var i=0;i<ratio;i++){
+        for(var j=0;j<ratio;j++){
+          addToRes(element + i*width + j);
+        }
+      }
+
+      return res;
+    };
+
     for(var i=0;i<grid.size;i++){
-      grid.pixelStore[i] = Grid.helpers.RGBtoCMYK({red: pixels.data[i*ratio], green: pixels.data[i*ratio + 1] , blue: pixels.data[i*ratio + 2]});
+      grid.pixelStore[i] = aggregateColors(i, ratio, pixels); 
     }
   },
   draw: function(grid, origin, next, pixelLine, pixels, thread, pixelsToRender){
@@ -240,7 +265,11 @@ var Grid = {
     }
   }
 };
-    
+
+var Adapter = {
+
+};
+
 var Canvas = {
   render: function(canvas, grid){
     console.log(grid);

@@ -10,9 +10,9 @@
     var pixelsToRender;
 
     //grid is a (W*H)x(W*H) matrix, and tells us which node is linked to which node. It requires memory equivalent to (WxH)^2, so adjacency lists are better for graphs with many nodes. But this will work for img of size ~50x50.
-    var grid = Grid.generate({width: 40, height: 40});
-    //gridAverages will later describe the 
-    var gridAverages;
+    var grid;
+    //gridAverages will say, for each node, what the accumulated CMYK values for all the pixels in that node's area are.
+    //var gridPixelAverage;
     //Initial settings
     var lines_count = 0;
     var MAX_LINES_DRAWN_PER_THREAD = 1500;
@@ -20,10 +20,10 @@
 
 
     var threads = [
-      {c: 0.2, m: 0, y: 0, k: 0, name: "midcyan"},
-      {c: 0, m: 0.2, y: 0, k: 0, name: "midmagenta"},
-      {c: 0, m: 0, y: 0.2, k: 0, name: "midyellow"},
-      {c: 0, m: 0, y: 0, k: 0.2, name: "midgray"},
+      {c: 1, m: 0, y: 0, k: 0, name: "midcyan"},
+      {c: 0, m: 1, y: 0, k: 0, name: "midmagenta"},
+      {c: 0, m: 0, y: 1, k: 0, name: "midyellow"},
+      {c: 0, m: 0, y: 0, k: 1, name: "midgray"},
     ];
 
     var drawColor = function(thread, count, node, previous){
@@ -67,14 +67,29 @@
       console.log(pixelsToRender);
       Canvas.putImage(target, pixelsToRender);
     });
+    $('#clear').click(function(){
+      localStorage.clear();
+    });
 
     //start the algorithm on image load
     pixelLoader.then(function(val){
       pixels = val;
       console.log('starting...');
-      Grid.storePixels(grid, pixels);
+      console.log(localStorage);
+      if (localStorage && localStorage.getItem("grid") ){
+        grid = JSON.parse(localStorage.getItem("grid"));
+      } else if (localStorage) {
+        grid = Grid.generate({width: 40, height: 40});
+        //Grid.storePixels(grid, pixels);
+        localStorage.setItem("grid", JSON.stringify(grid));
+      } else{
+        grid = Grid.generate({width: 40, height: 40});
+        //Grid.storePixels(grid, pixels);
+      }
+      console.log(grid);
+     
       pixelsToRender = Canvas.newImageData(target, pixels.width, pixels.height, 255);
-      iter();
+      //iter();
     });
 
       
