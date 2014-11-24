@@ -81,6 +81,22 @@ var Helpers = {
       count = Math.abs(colDiff);
     }
     return {start_with: startWith, increment: increment, slope: slope, count: count};
+  },
+  nodesAdjacentTo: function(origin, graph, radius){
+    var arr = [];
+    //turn to rc
+    var rcPoint = Helpers.convertToRC(origin, graph.width);
+    //lets say row10, column10
+    for(var i=rcPoint.row-radius;i<=rcPoint.row+radius;i++){
+      for(var j=rcPoint.column-radius;j<=rcPoint.column+radius;j++){
+        if(i<0 || j<0 || i>=graph.height || j>=graph.width || (i===rcPoint.row && j===rcPoint.column) ) {
+          //do nothing
+        } else {
+          arr.push( Helpers.rcToIndex(i, j, graph.width) );
+        }
+      }
+    }
+    return _.shuffle(arr);
   }
 };
 
@@ -113,7 +129,6 @@ Graph.prototype.getNodeValue = function(index){
   }
 };
 
-
 Graph.prototype.getMiddleNodes = function(first, second){
   //Return an array of affected nodes & distance (num of pixels drawn) by a line draw operation between two nodes
   //first and second are integers
@@ -140,17 +155,26 @@ Graph.prototype.getMiddleNodes = function(first, second){
 
 };
 
+Graph.prototype.getRandomNode = function(){
+  return Math.floor(Math.random() * this.size);
+};
+
+Graph.prototype.walkToNearbyNode = function(origin, thread){
+  //origin, graph, radius
+  return Helpers.nodesAdjacentTo(origin, this, 5);
+};
+
 Graph.prototype.verifyMiddleNodes = function(first, second, color, multiplier){
 
-}
+};
 
 Graph.prototype.connectNodes = function(first, second, color, multiplier){
-  
-}
+ 
+};
 
 Graph.prototype.renderNodes = function(canvas){
   //Given a set of edges and nodes, render onto canvas
-}
+};
 
 var Grid = {
   generate: function(options) {

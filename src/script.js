@@ -27,6 +27,25 @@
       {c: 0, m: 0, y: 0, k: 0.1, name: "midgray"},
     ];
 
+    var drawNextLine = function(graph, thread, previous){
+      var origin, result, nodes;
+      if (previous === undefined) {
+        origin = graph.getRandomNode();
+      } else {
+        origin = previous;
+      }
+      console.log(origin);
+      result = graph.walkToNearbyNode(origin, thread);
+      if(result !== null){
+        nodes = graph.getMiddleNodes(origin, result[0]);
+        console.log(result[0]);
+        console.log(nodes);     
+       //return drawNextLine(graph, thread, undefined);
+      } else {
+       //return drawNextLine(graph, thread, result);
+      }
+    };
+
     var drawColor = function(thread, count, node, previous){
       if (count === 0) {console.log("line ended at " + MAX_LINES_DRAWN_PER_THREAD);lines_count+= MAX_LINES_DRAWN_PER_THREAD; return;}
       var origin;
@@ -47,14 +66,14 @@
     };
     
     var timeoutFn;
-    var iter = function(){
-      drawColor(threads[0], MAX_LINES_DRAWN_PER_THREAD);
-      drawColor(threads[1], MAX_LINES_DRAWN_PER_THREAD);
-      drawColor(threads[2], MAX_LINES_DRAWN_PER_THREAD);
-      drawColor(threads[3], MAX_LINES_DRAWN_PER_THREAD);
-      Canvas.putImage(source, pixels);
-      $('#count').html(lines_count);
-      if (lines_count < MAX_LINES_OVERALL) timeoutFn = setTimeout(iter, 10);
+    var iter = function(graph){
+      drawNextLine(graph, threads[0]);
+      // drawColor(threads[1], MAX_LINES_DRAWN_PER_THREAD);
+      // drawColor(threads[2], MAX_LINES_DRAWN_PER_THREAD);
+      // drawColor(threads[3], MAX_LINES_DRAWN_PER_THREAD);
+      // Canvas.putImage(source, pixels);
+      // $('#count').html(lines_count);
+      // if (lines_count < MAX_LINES_OVERALL) timeoutFn = setTimeout(iter, 10);
     };
 
     $('#pause').click(function(){
@@ -93,7 +112,8 @@
       console.log(graph.getMiddleNodes(0, 121));
 
       pixelsToRender = Canvas.newImageData(target, pixels.width, pixels.height, 255);
-      //iter();
+      
+      iter(graph);
     });
 
       
