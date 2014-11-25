@@ -21,10 +21,10 @@
 
 
     var threads = [
-      {c: 0.1, m: 0, y: 0, k: 0, name: "midcyan"},
-      {c: 0, m: 0.1, y: 0, k: 0, name: "midmagenta"},
-      {c: 0, m: 0, y: 0.1, k: 0, name: "midyellow"},
-      {c: 0, m: 0, y: 0, k: 0.1, name: "midgray"},
+      {c: 10, m: 0, y: 0, k: 0, name: "cyan"},
+      {c: 0, m: 10, y: 0, k: 0, name: "magenta"},
+      {c: 0, m: 0, y: 10, k: 0, name: "yellow"},
+      {c: 0, m: 0, y: 0, k: 10, name: "black"},
     ];
 
     var drawNextLine = function(graph, thread, previous){
@@ -36,38 +36,20 @@
       }
       console.log(origin);
       result = graph.walkToNearbyNode(origin, thread);
-      if(result !== null){
-        nodes = graph.getMiddleNodes(origin, result[0]);
-        console.log(result[0]);
-        console.log(nodes);     
-       //return drawNextLine(graph, thread, undefined);
+      if(result.node !== undefined){
+        console.log(result);
+        graph.decrement(result.line, thread);
+        //Canvas.render(pixelsToRender, origin, result.node, thread);  
+       //return drawNextLine(graph, thread, result);  //w. a counter
       } else {
-       //return drawNextLine(graph, thread, result);
-      }
-    };
-
-    var drawColor = function(thread, count, node, previous){
-      if (count === 0) {console.log("line ended at " + MAX_LINES_DRAWN_PER_THREAD);lines_count+= MAX_LINES_DRAWN_PER_THREAD; return;}
-      var origin;
-      if (node === undefined && previous === undefined){
-        origin = Grid.helpers.getRandom(grid, thread);
-      } else {
-        origin = node; 
-      }
-      var result = Grid.findNextByWalking(origin, grid, pixels, thread);
-      if (typeof result.next === "number")  {
-        Grid.draw(grid, origin, result.next, result.pixelLine, pixels, thread, pixelsToRender);
-        return drawColor(thread, count - 1, result.next, result.prev);    
-      }
-      else {
-        lines_count += MAX_LINES_DRAWN_PER_THREAD - count;
-        return;
+        console.log("undefined result from node search");
+       //return drawNextLine(graph, thread, undefined);  //w. a counter
       }
     };
     
     var timeoutFn;
     var iter = function(graph){
-      drawNextLine(graph, threads[0]);
+      drawNextLine(graph, threads[3]);
       // drawColor(threads[1], MAX_LINES_DRAWN_PER_THREAD);
       // drawColor(threads[2], MAX_LINES_DRAWN_PER_THREAD);
       // drawColor(threads[3], MAX_LINES_DRAWN_PER_THREAD);
@@ -95,7 +77,7 @@
     pixelLoader.then(function(val){
       pixels = val;
       console.log('starting...');
-      if (localStorage && localStorage.getItem("grid") ){
+      /*if (localStorage && localStorage.getItem("grid") ){
         grid = JSON.parse(localStorage.getItem("grid"));
       } else if (localStorage) {
         console.log("Grid loaded from storage");
@@ -105,7 +87,7 @@
       } else{
         grid = Grid.generate({width: 40, height: 40});
         Grid.storePixels(grid, pixels);
-      }
+      }*/
       var graph = new Graph(pixels, {width: 40, height: 40});
       //console.log(grid);
       console.log(graph);

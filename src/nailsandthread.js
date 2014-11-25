@@ -1,16 +1,19 @@
+/*jslint devel:true, browser: true*/
+/*global Promise: true*/
+
 'use strict';
-var _; 
+var _;
 
 var Parser = {
-  getRGB: function(canvas, url){
+  getRGB: function (canvas, url) {
     var img = new Image();
     var context = canvas.getContext('2d');
-    var result = new Promise(function(resolve, reject){
-      img.onload=function(){
+    var result = new Promise(function (resolve, reject) {
+      img.onload = function () {
         canvas.width = img.width;
         canvas.height = img.height;
-        context.drawImage(img,0,0);
-        resolve(context.getImageData(0,0,canvas.width,canvas.height));
+        context.drawImage(img, 0, 0);
+        resolve(context.getImageData(0, 0 ,canvas.width ,canvas.height));
       };
     });
     img.src = url;
@@ -20,13 +23,13 @@ var Parser = {
 
 
 
-var Graph = function(data, options){
+var Graph = function (data, options) {
   this.nodes = [];
   this.edges = [];
   this.size = options.height*options.width;
   this.width = options.width;
   this.height = options.height;
-  for(var i=0, len=this.size;i<len;i++){
+  for(var i=0, len=this.size;i<len;i++) {
       this.nodes[i] = null;
   }
   this.imageHeight = data.height;
@@ -43,7 +46,7 @@ var Graph = function(data, options){
 
 
 var Helpers = {
-  RGBtoCMYK: function(red, green, blue){
+  RGBtoCMYK: function (red, green, blue) {
     var red1 = red/255,
       green1 = green/255,
        blue1 = blue/255,  
@@ -58,14 +61,14 @@ var Helpers = {
       return {c: c, m: m, y: y, k: k};
     }
   },
-  convertToRC: function (point, width){
+  convertToRC: function (point, width) {
     var row = Math.floor(point / width);
     return {row: row, column: point - width*row};
   },
-  rcToIndex: function(row, column, width){
+  rcToIndex: function (row, column, width) {
     return (row*width) + column;
   },
-  findSlope: function(origin, next){
+  findSlope: function (origin, next) {
     var rowDiff = next.row - origin.row;
     var colDiff = next.column - origin.column;
     var startWith, increment, slope, count;
@@ -82,13 +85,13 @@ var Helpers = {
     }
     return {start_with: startWith, increment: increment, slope: slope, count: count};
   },
-  nodesAdjacentTo: function(origin, graph, radius){
+  nodesAdjacentTo: function (origin, graph, radius) {
     var arr = [];
     //turn to rc
     var rcPoint = Helpers.convertToRC(origin, graph.width);
     //lets say row10, column10
-    for(var i=rcPoint.row-radius;i<=rcPoint.row+radius;i++){
-      for(var j=rcPoint.column-radius;j<=rcPoint.column+radius;j++){
+    for(var i=rcPoint.row-radius;i<=rcPoint.row+radius;i++) {
+      for(var j=rcPoint.column-radius;j<=rcPoint.column+radius;j++) {
         if(i<0 || j<0 || i>=graph.height || j>=graph.width || (i===rcPoint.row && j===rcPoint.column) ) {
           //do nothing
         } else {
@@ -100,7 +103,7 @@ var Helpers = {
   }
 };
 
-Graph.prototype.getNodeValue = function(index){
+Graph.prototype.getNodeValue = function (index) {
   //Iterate through the rectangle of pixels covered by each node
   var height = this.heightRatio,
       jump = this.imageWidth*4,
@@ -108,7 +111,7 @@ Graph.prototype.getNodeValue = function(index){
       convertedIndex = index*this.ratio,
       acc = {c: 0, m: 0, y: 0, k: 0},
       i, j;
-  var addToAcc = function(index, ctx){
+  var addToAcc = function (index, ctx) {
     var cmyk = Helpers.RGBtoCMYK(ctx.pixels[index], ctx.pixels[index+1], ctx.pixels[index+2]);
     acc.c += cmyk.c;
     acc.m += cmyk.m;
@@ -116,9 +119,9 @@ Graph.prototype.getNodeValue = function(index){
     acc.k += cmyk.k;
   };
 
-  if(this.nodes[index] === null){
-    for(i=0;i<height;i++){
-      for(j=0;j<width;j+=4){
+  if(this.nodes[index] === null) {
+    for(i=0;i<height;i++) {
+      for(j=0;j<width;j+=4) {
         addToAcc(convertedIndex + jump*i + j, this);
       }
     }
@@ -129,7 +132,7 @@ Graph.prototype.getNodeValue = function(index){
   }
 };
 
-Graph.prototype.getMiddleNodes = function(first, second){
+Graph.prototype.getMiddleNodes = function (first, second) {
   //Return an array of affected nodes & distance (num of pixels drawn) by a line draw operation between two nodes
   //first and second are integers
   var width = this.width,
@@ -142,12 +145,12 @@ Graph.prototype.getMiddleNodes = function(first, second){
   var i = 0;
   var index;
   var res = [];
-  if (slope.start_with === "rows"){
-    for(;i<slope.count;i++){
+  if (slope.start_with === "rows") {
+    for(;i<slope.count;i++) {
       res.push( Helpers.rcToIndex(rc1.row+(i*slope.increment), Math.floor(rc1.column+i*slope.slope), width) );
     }
   } else{
-    for(;i<slope.count;i++){
+    for(;i<slope.count;i++) {
       res.push( Helpers.rcToIndex(Math.floor(rc1.row+i*slope.slope), rc1.column+(i*slope.increment), width) );
     }
   }
@@ -155,54 +158,83 @@ Graph.prototype.getMiddleNodes = function(first, second){
 
 };
 
-Graph.prototype.getRandomNode = function(){
+Graph.prototype.getRandomNode = function () {
   return Math.floor(Math.random() * this.size);
 };
 
-Graph.prototype.walkToNearbyNode = function(origin, thread){
-  //origin, graph, radius
-  return Helpers.nodesAdjacentTo(origin, this, 5);
+Graph.prototype.walkToNearbyNode = function (origin, thread) {
+  var line;
+  var nodes = Helpers.nodesAdjacentTo(origin, this, 5);
+  var context = this;
+  var verified = _.find(nodes, function (index) {
+    line = context.getMiddleNodes(origin, index);
+    // console.log(line);
+    return _.every(line, function (pixel) {
+      var values = context.getNodeValue(pixel);
+      // console.log(values);
+      return (
+          values.k >= thread.k &&
+          values.c >= thread.c &&
+          values.m >= thread.m &&
+          values.y >= thread.y
+        );
+    });
+  });
+  return {node: verified, line: line};
 };
 
-Graph.prototype.verifyMiddleNodes = function(first, second, color, multiplier){
+Graph.prototype.decrement = function (line, thread) {
+  _.each(line, function(index){
+    this.nodes[index].c -= thread.c;
+    this.nodes[index].k -= thread.k;
+    this.nodes[index].m -= thread.m;
+    this.nodes[index].y -= thread.y;
+  }, this); 
+};
+
+Graph.prototype.renderToCanvas = function (canvas) {
 
 };
 
-Graph.prototype.connectNodes = function(first, second, color, multiplier){
+Graph.prototype.verifyMiddleNodes = function (first, second, color, multiplier) {
+
+};
+
+Graph.prototype.connectNodes = function (first, second, color, multiplier) {
  
 };
 
-Graph.prototype.renderNodes = function(canvas){
+Graph.prototype.renderNodes = function (canvas) {
   //Given a set of edges and nodes, render onto canvas
 };
 
 var Grid = {
-  generate: function(options) {
+  generate: function (options) {
     //try an adjacency matrix for this for quick scanning
     var grid = {};
     grid.rows = [];
     grid.size = options.height*options.width;
     grid.width = options.width;
     grid.height = options.height;
-    for(var i=0;i<grid.size;i++){
+    for(var i=0;i<grid.size;i++) {
       grid.rows[i] = [];
     }
     return grid;
   },
-  storePixels: function(grid, pixels){
+  storePixels: function (grid, pixels) {
     grid.pixelStore = [];
     if (pixels.data.length % grid.size !== 0) console.log("storePixels ratio uneven; will affect results");
     
     //each pixel will store the aggregated color information from the pixels in its grid.
     var ratio = pixels.data.length / grid.size;
 
-    var aggregateColors = function(element, ratio, pixels){
+    var aggregateColors = function (element, ratio, pixels) {
       //needs to loop from element to element + ratio (not inclusive)
       //both ways
       var width = pixels.width;
       var res = {c: 0, m: 0, y: 0, k: 0};
 
-      var addToRes = function(count){
+      var addToRes = function (count) {
         var cmyk = Grid.helpers.RGBtoCMYK({red: pixels.data[count], green: pixels.data[count+1], blue: pixels.data[count+2]});
         res.c += cmyk.c;
         res.m += cmyk.m;
@@ -210,8 +242,8 @@ var Grid = {
         res.k += cmyk.k;
       };
 
-      for (var i=0;i<ratio;i++){
-        for(var j=0;j<ratio;j++){
+      for (var i=0;i<ratio;i++) {
+        for(var j=0;j<ratio;j++) {
           addToRes(element + i*width + j);
         }
       }
@@ -219,13 +251,13 @@ var Grid = {
       return res;
     };
 
-    for(var i=0;i<grid.size;i++){
+    for(var i=0;i<grid.size;i++) {
       grid.pixelStore[i] = aggregateColors(i*ratio*4, ratio, pixels); 
     }
   },
-  draw: function(grid, origin, next, pixelLine, pixels, thread, pixelsToRender){
+  draw: function (grid, origin, next, pixelLine, pixels, thread, pixelsToRender) {
     grid.rows[origin][next] = thread.name;
-    _.each(pixelLine, function(obj){
+    _.each(pixelLine, function (obj) {
       var cmyk = Grid.helpers.RGBtoCMYK(obj);
       var adjusted = {};
       adjusted.c = cmyk.c - thread.c;
@@ -246,7 +278,7 @@ var Grid = {
       pixelsToRender.data[obj.index + 2] += (threadRGB.blue - 255);
     });
   },
-  findNextByWalking: function(origin, grid, pixels, thread){
+  findNextByWalking: function (origin, grid, pixels, thread) {
     //Find adjacent lines
     //we want large queries to be infrequent. so lets have a random 
     //distro along the power curve.
@@ -256,7 +288,7 @@ var Grid = {
     if (adjust < 0) adjust = 2;
     var radius = adjust; 
     var list = Grid.helpers.nodesAdjacentTo(origin, grid, radius);
-    for(var i=0; i<list.length;i++){
+    for(var i=0; i<list.length;i++) {
       if(Grid.helpers.checkGridValidity(origin, list[i], grid) === true) {
         var pixelLine = Grid.helpers.getPixels(origin, list[i], grid, pixels);
         if(Grid.helpers.checkValidity(pixelLine, thread)) return {pixelLine: pixelLine, next: list[i], prev: origin};
@@ -265,12 +297,12 @@ var Grid = {
     return false;
   },
   helpers: {
-    farthestNodesFrom: function(origin, grid){
+    farthestNodesFrom: function (origin, grid) {
       var arr = [];
-      for(var i=0;i<grid.size;i++){
+      for(var i=0;i<grid.size;i++) {
         arr[i] = i;
       }
-      return _.sortBy(arr, function(val){
+      return _.sortBy(arr, function(val) {
         var row1 = Math.floor(origin/grid.width);
         var row2 = Math.floor(val/grid.width);
         var rowSquared = Math.pow(row2-row1, 2);
@@ -279,13 +311,13 @@ var Grid = {
         return triangular * -1;
       });
     },
-    nodesAdjacentTo: function(origin, grid, radius, mock){
+    nodesAdjacentTo: function(origin, grid, radius, mock) {
       var arr = [];
       //turn to rc
       var rcPoint = Grid.helpers.convertToRC(origin, grid.width, grid.height);
       //lets say row10, column10
-      for(var i=rcPoint.row-radius;i<=rcPoint.row+radius;i++){
-        for(var j=rcPoint.column-radius;j<=rcPoint.column+radius;j++){
+      for(var i=rcPoint.row-radius;i<=rcPoint.row+radius;i++) {
+        for(var j=rcPoint.column-radius;j<=rcPoint.column+radius;j++) {
           if(i<0 || j<0 || i>=grid.height || j>=grid.width || (i===rcPoint.row && j===rcPoint.column) ) {
             //do nothing
           } else {
@@ -296,10 +328,10 @@ var Grid = {
       if (mock === true) return arr;
       return _.shuffle(arr);
     },
-    getRandom: function(grid, thread){
+    getRandom: function(grid, thread) {
       var MARGIN = 0.75;
       return random();
-      function random(){
+      function random() {
         var rand = Math.floor(Math.random()*grid.size);
         if (grid.pixelStore.c< thread.c) return random();
         if (grid.pixelStore.m< thread.m) return random();
@@ -311,13 +343,13 @@ var Grid = {
         return rand;
       }
     },
-    checkGridValidity: function (origin, target, grid){
+    checkGridValidity: function (origin, target, grid) {
       if (origin === target) return false;
       if (grid.rows[origin][target]) return false;
       return true;
     },
-    checkValidity: function(pixelLine, thread){
-      return _.every(pixelLine, function(obj){
+    checkValidity: function(pixelLine, thread) {
+      return _.every(pixelLine, function(obj) {
         var cmyk = Grid.helpers.RGBtoCMYK(obj);
         if (cmyk.c< thread.c) return false;
         if (cmyk.m< thread.m) return false;
@@ -332,11 +364,11 @@ var Grid = {
         return true;
       });
     },
-    getLast: function (origin){
+    getLast: function (origin) {
       //console.log("End of line.");
       return false;
     },
-    getPixels: function(origin, next, grid, pixels){
+    getPixels: function(origin, next, grid, pixels) {
       var gridLength = grid.size;
       var pixelLength = pixels.data.length / 4;
       if (pixelLength % gridLength !== 0) console.log('Warning: Grid/pixel ratio off balance. Balance for better results.');
@@ -347,21 +379,21 @@ var Grid = {
       var slope = Grid.helpers.findSlope(originImg, nextImg);
       return Grid.helpers.pixellate(originImg, nextImg, slope, pixels);
     },
-    pixellate: function(origin, next, slope, pixels){
+    pixellate: function(origin, next, slope, pixels) {
       //slope in form: {"start_with":"rows","increment":1,"slope":0.6341463414634146,"count":410} 
       var i = 1;
       var res = [];
-      if (slope.start_with === "rows"){
-        for(;i<slope.count;i++){
-          (function(i){
+      if (slope.start_with === "rows") {
+        for(;i<slope.count;i++) {
+          (function(i) {
             var index = Grid.helpers.rcToPixels(origin.row+(i*slope.increment), Math.round(origin.column+i*slope.slope), pixels.width, pixels.height, 0);
             res.push({index: index, red: pixels.data[index], green: pixels.data[index+1], blue: pixels.data[index+2] });
           })(i);
         }
       } else{
 
-        for(;i<slope.count;i++){
-          (function(i){
+        for(;i<slope.count;i++) {
+          (function(i) {
             var index = Grid.helpers.rcToPixels(Math.round(origin.row+i*slope.slope), origin.column+(i*slope.increment), pixels.width, pixels.height, 0);
             res.push({index: index, red: pixels.data[index], green: pixels.data[index+1], blue: pixels.data[index+2] });
           })(i);
@@ -369,12 +401,12 @@ var Grid = {
       }
       return res;
     },
-    rcToPixels: function(row, column, width, height, colorShift){
+    rcToPixels: function(row, column, width, height, colorShift) {
       var natural = (row*width) + column;
       if(colorShift === undefined) return natural;
       return natural * 4 + colorShift;
     },
-    findSlope: function(origin, next){
+    findSlope: function(origin, next) {
       var rowDiff = next.row - origin.row;
       var colDiff = next.column - origin.column;
       var startWith, increment, slope, count;
@@ -391,14 +423,14 @@ var Grid = {
       }
       return {start_with: startWith, increment: increment, slope: slope, count: count};
     },
-    convertToRC: function (point, width, height){
+    convertToRC: function (point, width, height) {
       var row = Math.floor(point / width);
       return {row: row, column: point - width*row};
     },
-    scaleToImage: function(rcPoint, width1, height1, width2, height2){
+    scaleToImage: function(rcPoint, width1, height1, width2, height2) {
       return {row: height2/height1*rcPoint.row, column: width2/width1*rcPoint.column};
     },
-    RGBtoCMYK: function(obj){
+    RGBtoCMYK: function(obj) {
       var red = obj.red/255,
         green = obj.green/255,
          blue = obj.blue/255,  
@@ -413,7 +445,7 @@ var Grid = {
         return {c: c, m: m, y: y, k: k};
       }
     },
-    CMYKtoRGB: function(obj){
+    CMYKtoRGB: function(obj) {
       return {
         red: 255 * (1-obj.c) * (1-obj.k),
         green: 255 * (1-obj.m) * (1-obj.k),
@@ -424,14 +456,14 @@ var Grid = {
 };
 
 var Canvas = {
-  render: function(canvas, grid){
+  render: function(canvas, grid) {
     console.log(grid);
 
   },
-  newImageData: function(canvas, width, height, opacity){
+  newImageData: function(canvas, width, height, opacity) {
     var context = canvas.getContext('2d');
     var imgdata = context.createImageData(width, height);
-    for(var i=0; i<imgdata.data.length; i+=4){
+    for(var i=0; i<imgdata.data.length; i+=4) {
       imgdata.data[i+0] = 255;
       imgdata.data[i+1] = 255;
       imgdata.data[i+2] = 255;
@@ -439,7 +471,7 @@ var Canvas = {
     }
     return imgdata;
   },
-  putImage: function(canvas, data){
+  putImage: function(canvas, data) {
     canvas.width = data.width;
     canvas.height = data.height;//console.log('put image');
     var context = canvas.getContext('2d');
