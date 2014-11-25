@@ -50,8 +50,8 @@ var Helpers = {
     var red1 = red/255,
       green1 = green/255,
        blue1 = blue/255,  
-          k = 1 - Math.max(red1, green1, blue1),
-          c, m, y;
+           k = 1 - Math.max(red1, green1, blue1),
+           c, m, y;
     if (k === 1) {
       return {c: 0, m: 0, y: 0, k: 1};
     } else{
@@ -60,6 +60,13 @@ var Helpers = {
       y = (1 - blue1 - k) / (1 - k);
       return {c: c, m: m, y: y, k: k};
     }
+  },
+  CMYKtoRGB: function(obj) {
+    return {
+      red: 255 * (1-obj.c) * (1-obj.k),
+      green: 255 * (1-obj.m) * (1-obj.k),
+      blue: 255 * (1-obj.y) * (1-obj.k),
+    };
   },
   convertToRC: function (point, width) {
     var row = Math.floor(point / width);
@@ -164,14 +171,17 @@ Graph.prototype.getRandomNode = function () {
 
 Graph.prototype.walkToNearbyNode = function (origin, thread) {
   var line;
+  var edges = this.edges;
   var nodes = Helpers.nodesAdjacentTo(origin, this, 5);
   var context = this;
   var verified = _.find(nodes, function (index) {
+    //check for existence of already drawn edge
+    if (edges[origin] && edges[origin].indexOf(index) >= 0) return false;
+
+    //check if all nodes in between have enough space
     line = context.getMiddleNodes(origin, index);
-    // console.log(line);
     return _.every(line, function (pixel) {
       var values = context.getNodeValue(pixel);
-      // console.log(values);
       return (
           values.k >= thread.k &&
           values.c >= thread.c &&
@@ -190,6 +200,17 @@ Graph.prototype.decrement = function (line, thread) {
     this.nodes[index].m -= thread.m;
     this.nodes[index].y -= thread.y;
   }, this); 
+};
+
+Graph.prototype.addEdge = function (pt1, pt2) {
+  if (this.edges[pt1] === undefined) {
+    this.edges[pt1] = [];
+  } 
+  if (this.edges[pt2] === undefined) {
+    this.edges[pt2] = [];
+  }
+  this.edges[pt1].push(pt2);
+  this.edges[pt2].push(pt1);
 };
 
 Graph.prototype.renderToCanvas = function (canvas) {
@@ -456,9 +477,11 @@ var Grid = {
 };
 
 var Canvas = {
-  render: function(canvas, grid) {
-    console.log(grid);
+  paint: function(pixels, pt1, pt2, thread) {
 
+    console.log(pixels);
+    console.log(thread);
+    console.log(Helpers.CMYKtoRGB(thread)); 
   },
   newImageData: function(canvas, width, height, opacity) {
     var context = canvas.getContext('2d');

@@ -21,10 +21,10 @@
 
 
     var threads = [
-      {c: 10, m: 0, y: 0, k: 0, name: "cyan"},
-      {c: 0, m: 10, y: 0, k: 0, name: "magenta"},
-      {c: 0, m: 0, y: 10, k: 0, name: "yellow"},
-      {c: 0, m: 0, y: 0, k: 10, name: "black"},
+      {c: 10, m: 0, y: 0, k: 0, render: {c: 1, m: 0, y: 0, k: 0} },
+      {c: 0, m: 10, y: 0, k: 0, render: {c: 0, m: 1, y: 0, k: 0} },
+      {c: 0, m: 0, y: 10, k: 0, render: {c: 0, m: 0, y: 1, k: 0} },
+      {c: 0, m: 0, y: 0, k: 10, render: {c: 0, m: 0, y: 0, k: 1} }
     ];
 
     var drawNextLine = function(graph, thread, previous){
@@ -38,8 +38,10 @@
       result = graph.walkToNearbyNode(origin, thread);
       if(result.node !== undefined){
         console.log(result);
+        graph.addEdge(origin, result.node);
         graph.decrement(result.line, thread);
-        //Canvas.render(pixelsToRender, origin, result.node, thread);  
+        console.log(graph);
+        Canvas.paint(pixelsToRender, origin, result.node, thread.render); 
        //return drawNextLine(graph, thread, result);  //w. a counter
       } else {
         console.log("undefined result from node search");
@@ -91,8 +93,6 @@
       var graph = new Graph(pixels, {width: 40, height: 40});
       //console.log(grid);
       console.log(graph);
-      console.log(graph.getMiddleNodes(0, 121));
-
       pixelsToRender = Canvas.newImageData(target, pixels.width, pixels.height, 255);
       
       iter(graph);
