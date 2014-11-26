@@ -12,7 +12,7 @@ var Parser = {
       img.onload = function () {
         canvas.width = img.width;
         canvas.height = img.height;
-        context.drawImage(img, 0, 0);
+        // context.drawImage(img, 0, 0);
         resolve(context.getImageData(0, 0, canvas.width, canvas.height));
       };
     });
@@ -55,13 +55,23 @@ var Helpers = {
     k = 1 - Math.max(red1, green1, blue1);
 
     if (k === 1) {
-      return {c: 0, m: 0, y: 0, k: 1 };
+      return {
+        c: 0,
+        m: 0,
+        y: 0,
+        k: 1
+      };
     }
 
     c = (1 - red1 - k) / (1 - k);
     m = (1 - green1 - k) / (1 - k);
     y = (1 - blue1 - k) / (1 - k);
-    return {c: c, m: m, y: y, k: k };
+    return {
+      c: c,
+      m: m,
+      y: y,
+      k: k
+    };
   },
   CMYKtoRGB: function (obj) {
     return {
@@ -110,7 +120,7 @@ var Helpers = {
     for (i = rcPoint.row - radius; i <= rcPoint.row + radius; i++) {
       for (j = rcPoint.column - radius; j <= rcPoint.column + radius; j++) {
         if (!(i < 0 || j < 0 || i >= graph.height || j >= graph.width || (i ===
-            rcPoint.row && j === rcPoint.column))) {
+          rcPoint.row && j === rcPoint.column))) {
           arr.push(Helpers.rcToIndex(i, j, graph.width));
         }
       }
@@ -126,7 +136,12 @@ Graph.prototype.getNodeValue = function (index) {
   jump = this.imageWidth * 4;
   width = this.widthRatio * 4;
   convertedIndex = index * this.ratio;
-  acc = {c: 0, m: 0, y: 0, k: 0 };
+  acc = {
+    c: 0,
+    m: 0,
+    y: 0,
+    k: 0
+  };
 
   var addToAcc = function (index, ctx) {
     var cmyk = Helpers.RGBtoCMYK(ctx.pixels[index], ctx.pixels[index + 1],
@@ -156,19 +171,16 @@ Graph.prototype.getMiddleNodes = function (first, second) {
   //first and second are integers
   var i;
   var width = this.width,
-    height = this.height,
     rc1 = Helpers.convertToRC(first, width),
     rc2 = Helpers.convertToRC(second, width),
     slope = Helpers.findSlope(rc1, rc2);
 
   //slope in form: {"start_with":"rows","increment":1,"slope":0.6341463414634146,"count":410} 
-  var index;
   var res = [];
 
   if (slope.start_with === "rows") {
     for (i = 0; i < slope.count; i++) {
-      res.push(Helpers.rcToIndex(rc1.row + (i * slope.increment), Math.floor(
-        rc1.column + i * slope.slope), width));
+      res.push(Helpers.rcToIndex(rc1.row + (i * slope.increment), Math.floor(rc1.column + i * slope.slope), width));
     }
   } else {
     for (i = 0; i < slope.count; i++) {
@@ -187,12 +199,13 @@ Graph.prototype.getRandomNode = function () {
 Graph.prototype.walkToNearbyNode = function (origin, thread) {
   var line;
   var edges = this.edges;
-  var nodes = Helpers.nodesAdjacentTo(origin, this, 5);
+  var nodes = Helpers.nodesAdjacentTo(origin, this, 2);
   var context = this;
   var verified = _.find(nodes, function (index) {
     //check for existence of already drawn edge
-    if (edges[origin] && edges[origin].indexOf(index) >= 0) return false;
-
+    if (edges[origin] && edges[origin].indexOf(index) >= 0) {
+      return false;
+    }
     //check if all nodes in between have enough space
     line = context.getMiddleNodes(origin, index);
     return _.every(line, function (pixel) {
@@ -237,26 +250,32 @@ var Canvas = {
     width = pixels.width;
     rc1 = Helpers.convertToRC(pt1, graph.width);
     rc2 = Helpers.convertToRC(pt2, graph.width);
-    RC1 = {row: rc1.row * graph.heightRatio, column: rc1.column * graph.widthRatio};
-    RC2 = {row: rc2.row * graph.heightRatio, column: rc2.column * graph.widthRatio};
+    RC1 = {
+      row: rc1.row * graph.heightRatio,
+      column: rc1.column * graph.widthRatio
+    };
+    RC2 = {
+      row: rc2.row * graph.heightRatio,
+      column: rc2.column * graph.widthRatio
+    };
     slope = Helpers.findSlope(RC1, RC2);
     indices = [];
 
     if (slope.start_with === "rows") {
       for (i = 0; i < slope.count; i++) {
-        indices.push(Helpers.rcToIndex(RC1.row + (i * slope.increment), Math.floor(
-          RC1.column + i * slope.slope), width));
+        indices.push(Helpers.rcToIndex(RC1.row + (i * slope.increment), Math.floor(RC1.column + i * slope.slope), width));
       }
     } else {
       for (i = 0; i < slope.count; i++) {
-        indices.push(Helpers.rcToIndex(Math.floor(RC1.row + i * slope.slope), RC1.column +
+        indices.push(Helpers.rcToIndex(Math.floor(RC1.row + i * slope.slope),
+          RC1.column +
           (i * slope.increment), width));
       }
     }
     rgb = Helpers.CMYKtoRGB(thread);
 
     _.each(_.uniq(indices), function (index) {
-      var pos = index*4;
+      var pos = index * 4;
       pixels.data[pos] = rgb.red;
       pixels.data[pos + 1] = rgb.green;
       pixels.data[pos + 2] = rgb.blue;
@@ -265,10 +284,11 @@ var Canvas = {
 
   },
   newImageData: function (canvas, width, height, opacity) {
+    var i;
     var context = canvas.getContext('2d');
     var imgdata = context.createImageData(width, height);
-    for (var i = 0; i < imgdata.data.length; i += 4) {
-      imgdata.data[i + 0] = 255;
+    for (i = 0; i < imgdata.data.length; i += 4) {
+      imgdata.data[i] = 255;
       imgdata.data[i + 1] = 255;
       imgdata.data[i + 2] = 255;
       imgdata.data[i + 3] = opacity;

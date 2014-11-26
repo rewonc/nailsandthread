@@ -32,7 +32,7 @@ $(function () {
       graph.decrement(result.line, thread);
       Canvas.paint(pixelsToRender, origin, result.node, thread.render, graph);
       timeoutFn = setTimeout(function () {
-        drawNextLine(graph, thread, result);
+        drawNextLine(graph, thread, result.node);
       }, 10);
     } else {
       console.log("undefined result from node search");
@@ -43,9 +43,9 @@ $(function () {
   };
 
   var init = function (graph) {
-    drawNextLine(graph, threads[0]);
-    drawNextLine(graph, threads[1]);
-    drawNextLine(graph, threads[2]);
+    // drawNextLine(graph, threads[0]);
+    // drawNextLine(graph, threads[1]);
+    // drawNextLine(graph, threads[2]);
     drawNextLine(graph, threads[3]);
   };
 
