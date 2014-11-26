@@ -22,27 +22,29 @@ var Parser = {
 };
 
 var Graph = function (data, options) {
+  //data = imageData  in 640000 format
+  //options is 40x40 or 1.6k format
   var i, len;
   this.nodes = [];
   this.edges = [];
-  this.size = options.height * options.width;
-  this.width = options.width;
-  this.height = options.height;
+  this.size = options.height * options.width; //1600
+  this.width = options.width; //40
+  this.height = options.height; //40
   for (i = 0, len = this.size; i < len; i++) {
     this.nodes[i] = null;
   }
-  this.imageHeight = data.height;
-  this.imageWidth = data.width;
-  this.pixels = data.data;
+  this.imageHeight = data.height; //400
+  this.imageWidth = data.width; //400
+  this.pixels = data.data; //640k format
 
   //for calculating next rows in subsequent functions
-  this.heightRatio = this.imageHeight / this.height;
-  this.widthRatio = this.imageWidth / this.width;
+  this.heightRatio = this.imageHeight / this.height; //10
+  this.widthRatio = this.imageWidth / this.width; //10
 
   if (this.pixels.length % this.size !== 0) {
     console.log("Graph / Image ratio uneven; choose a proportional ratio");
   }
-  this.ratio = this.pixels.length / this.size;
+  this.ratio = this.pixels.length / 4 / this.size; // 100
 };
 
 
@@ -140,15 +142,29 @@ var Helpers = {
 
 Graph.prototype.getNodeValue = function (index) {
   //Iterate through the rectangle of pixels covered by each node
+
+  //index is on 1600 scale
   if (this.nodes[index] !== null) {
     return this.nodes[index];
   }
+  var convertedIndex, cmyk;
+  convertedIndex = index * this.ratio * 4; //convertedIndex -> 100 * 1600 * 4 = 640k scale
+  cmyk = Helpers.RGBtoCMYK(this.pixels[convertedIndex], this.pixels[convertedIndex + 1], this.pixels[convertedIndex + 2]);
+  /*cmyk.c = cmyk.c * this.ratio;
+  cmyk.m = cmyk.m * this.ratio;
+  cmyk.y = cmyk.y * this.ratio;
+  cmyk.k = cmyk.k * this.ratio;*/
+  this.nodes[index] = cmyk;
+  console.log(convertedIndex);
+  return cmyk;
 
+  /*
   var i, j, height, jump, width, convertedIndex, acc;
   height = this.heightRatio;
   jump = this.imageWidth * 4;
   width = this.widthRatio * 4;
   convertedIndex = index * this.ratio;
+
   acc = {
     c: 0,
     m: 0,
@@ -172,6 +188,8 @@ Graph.prototype.getNodeValue = function (index) {
   }
   this.nodes[index] = acc;
   return acc;
+
+  */
 
 };
 
@@ -305,10 +323,14 @@ var Canvas = {
     return imgdata;
   },
   renderNodes: function (canvas, data, graph) {
+    //graph.nodes.len === 1600
+    //data.data.len = 6400
     _.each(graph.nodes, function (val, index) {
-      var newIndex = index * 4;
-      var cmyk = graph.getNodeValue(index);
-      var rgb = Helpers.CMYKtoRGB(Helpers.normalizeCMYK(cmyk, graph.ratio));
+      var cmyk = val || graph.getNodeValue(index); //index: 1600 scale
+      //var rgb = Helpers.CMYKtoRGB(Helpers.normalizeCMYK(cmyk, graph.ratio));
+      var rgb = Helpers.CMYKtoRGB(cmyk);
+      var newIndex = index * 4; //newindex -> 6400 scale
+      console.log(newIndex);
       data.data[newIndex] = rgb.red;
       data.data[newIndex + 1] = rgb.green;
       data.data[newIndex + 2] = rgb.blue;
