@@ -5,7 +5,7 @@ $(function () {
 
   //Constants to adjust per drawing
   var MAX_RADIUS = 3;
-  var LINE_INTENSITY = 8;
+  var LINE_INTENSITY = 9;
   var RENDER_INTENSITY = 1;
   var GRAPH_WIDTH = 47;
   var GRAPH_HEIGHT = 54;
@@ -93,8 +93,8 @@ $(function () {
     $('#restart').click(function () {
       init(graph);
     });
-    $('#render').click(function () {
-      Canvas.putImage(target, pixelsToRender);
+    $('#show').click(function () {
+      $(source).show();
     });
 
     $('#nodes').click(function () {
