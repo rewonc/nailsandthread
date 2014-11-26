@@ -148,14 +148,13 @@ Graph.prototype.getNodeValue = function (index) {
     return this.nodes[index];
   }
   var convertedIndex, cmyk;
-  convertedIndex = index * this.ratio * 4; //convertedIndex -> 100 * 1600 * 4 = 640k scale
+  convertedIndex = this.scaleToPixel(index);
   cmyk = Helpers.RGBtoCMYK(this.pixels[convertedIndex], this.pixels[convertedIndex + 1], this.pixels[convertedIndex + 2]);
-  /*cmyk.c = cmyk.c * this.ratio;
+  cmyk.c = cmyk.c * this.ratio;
   cmyk.m = cmyk.m * this.ratio;
   cmyk.y = cmyk.y * this.ratio;
-  cmyk.k = cmyk.k * this.ratio;*/
+  cmyk.k = cmyk.k * this.ratio;
   this.nodes[index] = cmyk;
-  console.log(convertedIndex);
   return cmyk;
 
   /*
@@ -191,6 +190,13 @@ Graph.prototype.getNodeValue = function (index) {
 
   */
 
+};
+
+Graph.prototype.scaleToPixel = function (index) {
+  var rc = Helpers.convertToRC(index, this.width);
+  var row = rc.row * this.heightRatio;
+  var column = rc.column * this.widthRatio;
+  return Helpers.rcToIndex(row, column, this.imageWidth) * 4;
 };
 
 Graph.prototype.getMiddleNodes = function (first, second) {
@@ -330,7 +336,6 @@ var Canvas = {
       //var rgb = Helpers.CMYKtoRGB(Helpers.normalizeCMYK(cmyk, graph.ratio));
       var rgb = Helpers.CMYKtoRGB(cmyk);
       var newIndex = index * 4; //newindex -> 6400 scale
-      console.log(newIndex);
       data.data[newIndex] = rgb.red;
       data.data[newIndex + 1] = rgb.green;
       data.data[newIndex + 2] = rgb.blue;

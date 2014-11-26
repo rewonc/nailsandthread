@@ -6,7 +6,7 @@ $(function () {
   var target = document.getElementById('target');
 
   //pixelLoader is a promise that will populate pixels when the image loads. Pixels stores what's left of the image; pixelsToRender is a store of what the algo is drawing.
-  var pixelLoader = Parser.getRGB(source, 'img/gradient-x.jpg');
+  var pixelLoader = Parser.getRGB(source, 'img/400x400-dog.jpg');
   var pixels;
   var pixelsToRender, nodeValues;
 
@@ -59,11 +59,11 @@ $(function () {
       height: 40
     });
 
-    console.log(graph); // 1.6k scale
+    console.log(graph);
     pixelsToRender = Canvas.newImageData(target, pixels.width, pixels.height,
-      255); //640k
+      255);
     nodeValues = Canvas.newImageData(target, graph.width, graph.height,
-      255); // 6.4k
+      255);
 
     $('#pause').click(function () {
       _.each(timeoutFn, function (obj) {
