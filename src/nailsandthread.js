@@ -333,8 +333,7 @@ var Canvas = {
     //data.data.len = 6400
     _.each(graph.nodes, function (val, index) {
       var cmyk = val || graph.getNodeValue(index); //index: 1600 scale
-      //var rgb = Helpers.CMYKtoRGB(Helpers.normalizeCMYK(cmyk, graph.ratio));
-      var rgb = Helpers.CMYKtoRGB(cmyk);
+      var rgb = Helpers.CMYKtoRGB(Helpers.normalizeCMYK(cmyk, graph.ratio));
       var newIndex = index * 4; //newindex -> 6400 scale
       data.data[newIndex] = rgb.red;
       data.data[newIndex + 1] = rgb.green;

@@ -34,11 +34,13 @@ $(function () {
       timeoutFn[thread.name] = setTimeout(function () {
         drawNextLine(graph, thread, result.node);
       }, 10);
+      Canvas.putImage(target, pixelsToRender);
     } else {
       console.log("undefined result from node search");
       timeoutFn[thread.name] = setTimeout(function () {
         drawNextLine(graph, thread);
       }, 10);
+      Canvas.putImage(target, pixelsToRender);
     }
   };
 
