@@ -5,11 +5,11 @@ $(function () {
 
   //Constants to adjust per drawing
   var MAX_RADIUS = 3;
-  var LINE_INTENSITY = 3;
-  var RENDER_INTENSITY = 0.8;
-  var GRAPH_WIDTH = 60;
-  var GRAPH_HEIGHT = 60;
-  var IMAGE_SOURCE = 'img/300x300-animal.jpg';
+  var LINE_INTENSITY = 8;
+  var RENDER_INTENSITY = 1;
+  var GRAPH_WIDTH = 47;
+  var GRAPH_HEIGHT = 54;
+  var IMAGE_SOURCE = 'img/470x540-dcraig.jpg';
 
   //These correspond to real-life strings and can be adjusted for real color characteristics
   var threads = [
