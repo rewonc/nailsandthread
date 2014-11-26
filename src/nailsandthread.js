@@ -147,6 +147,8 @@ Graph.prototype.getNodeValue = function (index) {
   if (this.nodes[index] !== null) {
     return this.nodes[index];
   }
+
+  /* take simply the first pixel of the node as the correct value
   var convertedIndex, cmyk;
   convertedIndex = this.scaleToPixel(index);
   cmyk = Helpers.RGBtoCMYK(this.pixels[convertedIndex], this.pixels[convertedIndex + 1], this.pixels[convertedIndex + 2]);
@@ -156,13 +158,14 @@ Graph.prototype.getNodeValue = function (index) {
   cmyk.k = cmyk.k * this.ratio;
   this.nodes[index] = cmyk;
   return cmyk;
+  */
 
-  /*
+  //this takes the average of all the nodes  
   var i, j, height, jump, width, convertedIndex, acc;
   height = this.heightRatio;
   jump = this.imageWidth * 4;
   width = this.widthRatio * 4;
-  convertedIndex = index * this.ratio;
+  convertedIndex = this.scaleToPixel(index);
 
   acc = {
     c: 0,
@@ -187,8 +190,6 @@ Graph.prototype.getNodeValue = function (index) {
   }
   this.nodes[index] = acc;
   return acc;
-
-  */
 
 };
 
@@ -229,10 +230,10 @@ Graph.prototype.getRandomNode = function () {
   return Math.floor(Math.random() * this.size);
 };
 
-Graph.prototype.walkToNearbyNode = function (origin, thread) {
+Graph.prototype.walkToNearbyNode = function (origin, thread, radius) {
   var line;
   var edges = this.edges;
-  var nodes = Helpers.nodesAdjacentTo(origin, this, 2);
+  var nodes = Helpers.nodesAdjacentTo(origin, this, radius);
   var context = this;
   var verified = _.find(nodes, function (index) {
     //check for existence of already drawn edge
