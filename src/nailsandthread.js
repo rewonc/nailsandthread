@@ -12,7 +12,7 @@ var Parser = {
       img.onload = function () {
         canvas.width = img.width;
         canvas.height = img.height;
-        // context.drawImage(img, 0, 0);
+        context.drawImage(img, 0, 0);
         resolve(context.getImageData(0, 0, canvas.width, canvas.height));
       };
     });
@@ -80,6 +80,15 @@ var Helpers = {
       blue: 255 * (1 - obj.y) * (1 - obj.k),
     };
   },
+  normalizeCMYK: function (obj, maxBlack) {
+    var max = Math.max(obj.c, obj.m, obj.y);
+    return {
+      c: obj.c / max,
+      m: obj.m / max,
+      y: obj.y / max,
+      k: obj.k / maxBlack
+    };
+  },
   convertToRC: function (point, width) {
     var row = Math.floor(point / width);
     return {
@@ -131,6 +140,10 @@ var Helpers = {
 
 Graph.prototype.getNodeValue = function (index) {
   //Iterate through the rectangle of pixels covered by each node
+  if (this.nodes[index] !== null) {
+    return this.nodes[index];
+  }
+
   var i, j, height, jump, width, convertedIndex, acc;
   height = this.heightRatio;
   jump = this.imageWidth * 4;
@@ -152,17 +165,13 @@ Graph.prototype.getNodeValue = function (index) {
     acc.k += cmyk.k;
   };
 
-  if (this.nodes[index] === null) {
-    for (i = 0; i < height; i++) {
-      for (j = 0; j < width; j += 4) {
-        addToAcc(convertedIndex + jump * i + j, this);
-      }
+  for (i = 0; i < height; i++) {
+    for (j = 0; j < width; j += 4) {
+      addToAcc(convertedIndex + jump * i + j, this);
     }
-    this.nodes[index] = acc;
-    return acc;
   }
-
-  return this.nodes[index];
+  this.nodes[index] = acc;
+  return acc;
 
 };
 
@@ -294,6 +303,17 @@ var Canvas = {
       imgdata.data[i + 3] = opacity;
     }
     return imgdata;
+  },
+  renderNodes: function (canvas, data, graph) {
+    _.each(graph.nodes, function (val, index) {
+      var newIndex = index * 4;
+      var cmyk = graph.getNodeValue(index);
+      var rgb = Helpers.CMYKtoRGB(Helpers.normalizeCMYK(cmyk, graph.ratio));
+      data.data[newIndex] = rgb.red;
+      data.data[newIndex + 1] = rgb.green;
+      data.data[newIndex + 2] = rgb.blue;
+    });
+    Canvas.putImage(canvas, data);
   },
   putImage: function (canvas, data) {
     canvas.width = data.width;
