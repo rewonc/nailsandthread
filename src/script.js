@@ -5,11 +5,12 @@ $(function () {
 
   //Constants to adjust per drawing
   var MAX_RADIUS = 3;
-  var LINE_INTENSITY = 9;
+  // var MIN_RADIUS = 2;
+  var LINE_INTENSITY = 10;
   var RENDER_INTENSITY = 1;
-  var GRAPH_WIDTH = 47;
-  var GRAPH_HEIGHT = 54;
-  var IMAGE_SOURCE = 'img/470x540-dcraig.jpg';
+  var GRAPH_WIDTH = 44;
+  var GRAPH_HEIGHT = 40;
+  var IMAGE_SOURCE = 'img/bearded-dude-440-400.jpg';
 
   //These correspond to real-life strings and can be adjusted for real color characteristics
   var threads = [
@@ -45,13 +46,13 @@ $(function () {
       Canvas.paint(pixelsToRender, origin, result.node, thread.render, graph);
       timeoutFn[thread.name] = setTimeout(function () {
         drawNextLine(graph, thread, result.node);
-      }, 2);
+      }, 1);
       Canvas.putImage(target, pixelsToRender);
     } else {
       console.log("undefined result from node search");
       timeoutFn[thread.name] = setTimeout(function () {
         drawNextLine(graph, thread);
-      }, 2);
+      }, 1);
       Canvas.putImage(target, pixelsToRender);
     }
   };
