@@ -3,9 +3,9 @@ $(function () {
   'use strict';
 
   //Constants to adjust per drawing
-  var MAX_RADIUS = 10;
-  var SCALE_COEFFICIENT = 2;
-  var LINE_INTENSITY = 10 / SCALE_COEFFICIENT;
+  var MAX_RADIUS = 8;
+  var SCALE_COEFFICIENT = 5;
+  var LINE_INTENSITY = 5 / SCALE_COEFFICIENT;
   var RENDER_INTENSITY = 1;
   var GRAPH_WIDTH = 40 * SCALE_COEFFICIENT;
   var GRAPH_HEIGHT = 53 * SCALE_COEFFICIENT;
@@ -164,6 +164,7 @@ $(function () {
     });
 
     init(graph);
+    // init(graph);
 
   });
 
