@@ -1,17 +1,18 @@
 /*global document: true, Canvas: true, Parser: true, Graph: true */
 $(function () {
   'use strict';
-  //todo -- improve nodeValues rendition of the page
 
   //Constants to adjust per drawing
-  var MAX_RADIUS = 3;
+  var MAX_RADIUS = 10;
   var SCALE_COEFFICIENT = 2;
-  // var MIN_RADIUS = 2;
   var LINE_INTENSITY = 10 / SCALE_COEFFICIENT;
   var RENDER_INTENSITY = 1;
   var GRAPH_WIDTH = 40 * SCALE_COEFFICIENT;
   var GRAPH_HEIGHT = 53 * SCALE_COEFFICIENT;
   var IMAGE_SOURCE = 'img/clint-400-530.jpg';
+
+  //Track number of lines drawn
+  var numLinesDrawn = 1;
 
   //These correspond to real-life strings and can be adjusted for real color characteristics
   var threads = [
@@ -58,11 +59,70 @@ $(function () {
     }
   };
 
+  var connectNodes = function (origin, result, graph, thread) {
+    console.log("connectNodes");
+    graph.addEdge(origin, result.node);
+    graph.decrement(result.line, thread);
+    Canvas.paint(pixelsToRender, origin, result.node, thread.render, graph);
+    Canvas.putImage(target, pixelsToRender);
+  };
+
+  var continuousLine = function (graph, thread, level, start, end) {
+
+    if (level === 0) {
+      console.log('line exhausted');
+      numLinesDrawn++;
+      $('#count').text(numLinesDrawn);
+      return continuousLine(graph, thread, MAX_RADIUS);
+    }
+    console.log('contLine');
+    var result, scan1, scan2;
+
+    if (start === undefined || end === undefined) {
+      console.log('undefined block');
+      start = graph.getRandomNode();
+      result = graph.walkToNearbyNode(start, thread, level);
+      if (result.node !== undefined) {
+        connectNodes(start, result, graph, thread);
+        continuousLine(graph, thread, level, start, result.node);
+        return;
+      }
+      return continuousLine(graph, thread, level);
+    }
+
+    scan1 = graph.scanRadius(start, thread, level);
+    if (scan1.node !== undefined) {
+      console.log('first scan');
+      connectNodes(start, scan1, graph, thread);
+      timeoutFn[thread.name] = setTimeout(function () {
+        continuousLine(graph, thread, level, scan1.node, end);
+      }, 1);
+      return;
+    }
+
+    scan2 = graph.scanRadius(end, thread, level);
+    if (scan2.node !== undefined) {
+      console.log('second scan');
+      connectNodes(start, scan2, graph, thread);
+      timeoutFn[thread.name] = setTimeout(function () {
+        continuousLine(graph, thread, level, scan2.node, start);
+      }, 1);
+      return;
+    }
+
+    console.log('scan failure');
+    timeoutFn[thread.name] = setTimeout(function () {
+      continuousLine(graph, thread, level - 1, start, end);
+    }, 1);
+    return;
+
+  };
+
   var init = function (graph) {
     drawNextLine(graph, threads[0]);
     drawNextLine(graph, threads[1]);
     drawNextLine(graph, threads[2]);
-    drawNextLine(graph, threads[3]);
+    continuousLine(graph, threads[3], MAX_RADIUS);
   };
 
   //start the algorithm on image load
