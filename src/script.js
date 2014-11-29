@@ -5,12 +5,13 @@ $(function () {
 
   //Constants to adjust per drawing
   var MAX_RADIUS = 3;
+  var SCALE_COEFFICIENT = 2;
   // var MIN_RADIUS = 2;
-  var LINE_INTENSITY = 10;
+  var LINE_INTENSITY = 10 / SCALE_COEFFICIENT;
   var RENDER_INTENSITY = 1;
-  var GRAPH_WIDTH = 44;
-  var GRAPH_HEIGHT = 40;
-  var IMAGE_SOURCE = 'img/bearded-dude-440-400.jpg';
+  var GRAPH_WIDTH = 40 * SCALE_COEFFICIENT;
+  var GRAPH_HEIGHT = 53 * SCALE_COEFFICIENT;
+  var IMAGE_SOURCE = 'img/clint-400-530.jpg';
 
   //These correspond to real-life strings and can be adjusted for real color characteristics
   var threads = [
