@@ -137,6 +137,27 @@ var Helpers = {
       }
     }
     return _.shuffle(arr);
+  },
+  nodesAtRadius: function (origin, graph, radius) {
+    var i, j, rcPoint, arr;
+    arr = [];
+    rcPoint = Helpers.convertToRC(origin, graph.width);
+    _.each([rcPoint.row - radius, rcPoint.row + radius], function (row) {
+      for (j = rcPoint.column - radius; j <= rcPoint.column + radius; j++) {
+        if (!(row < 0 || j < 0 || row >= graph.height || j >= graph.width)) {
+          arr.push(Helpers.rcToIndex(row, j, graph.width));
+        }
+      }
+    });
+
+    _.each([rcPoint.column - radius, rcPoint.column + radius], function (column) {
+      for (i = rcPoint.row - radius; i <= rcPoint.row + radius; i++) {
+        if (!(i < 0 || column < 0 || i >= graph.height || column >= graph.width)) {
+          arr.push(Helpers.rcToIndex(i, column, graph.width));
+        }
+      }
+    });
+    return _.shuffle(arr);
   }
 };
 
@@ -230,6 +251,34 @@ Graph.prototype.getRandomNode = function () {
   return Math.floor(Math.random() * this.size);
 };
 
+Graph.prototype.scanRadius = function (origin, thread, radius) {
+  var line;
+  var edges = this.edges;
+  var nodes = Helpers.nodesAtRadius(origin, this, radius);
+  var context = this;
+  var verified = _.find(nodes, function (index) {
+    //check for existence of already drawn edge
+    if (edges[origin] && edges[origin].indexOf(index) >= 0) {
+      return false;
+    }
+    //check if all nodes in between have enough space
+    line = context.getMiddleNodes(origin, index);
+    return _.every(line, function (pixel) {
+      var values = context.getNodeValue(pixel);
+      return (
+        values.k >= thread.k &&
+        values.c >= thread.c &&
+        values.m >= thread.m &&
+        values.y >= thread.y
+      );
+    });
+  });
+  return {
+    node: verified,
+    line: line
+  };
+};
+
 Graph.prototype.walkToNearbyNode = function (origin, thread, radius) {
   var line;
   var edges = this.edges;
@@ -260,10 +309,11 @@ Graph.prototype.walkToNearbyNode = function (origin, thread, radius) {
 
 Graph.prototype.decrement = function (line, thread) {
   _.each(line, function (index) {
-    this.nodes[index].c -= thread.c;
-    this.nodes[index].k -= thread.k;
-    this.nodes[index].m -= thread.m;
-    this.nodes[index].y -= thread.y;
+    var value = this.getNodeValue(index);
+    value.c -= thread.c;
+    value.k -= thread.k;
+    value.m -= thread.m;
+    value.y -= thread.y;
   }, this);
 };
 
