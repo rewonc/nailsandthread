@@ -169,18 +169,6 @@ Graph.prototype.getNodeValue = function (index) {
     return this.nodes[index];
   }
 
-  /* take simply the first pixel of the node as the correct value
-  var convertedIndex, cmyk;
-  convertedIndex = this.scaleToPixel(index);
-  cmyk = Helpers.RGBtoCMYK(this.pixels[convertedIndex], this.pixels[convertedIndex + 1], this.pixels[convertedIndex + 2]);
-  cmyk.c = cmyk.c * this.ratio;
-  cmyk.m = cmyk.m * this.ratio;
-  cmyk.y = cmyk.y * this.ratio;
-  cmyk.k = cmyk.k * this.ratio;
-  this.nodes[index] = cmyk;
-  return cmyk;
-  */
-
   //this takes the average of all the nodes  
   var i, j, height, jump, width, convertedIndex, acc;
   height = this.heightRatio;
@@ -192,7 +180,9 @@ Graph.prototype.getNodeValue = function (index) {
     c: 0,
     m: 0,
     y: 0,
-    k: 0
+    k: 0,
+    offsetX: 0,
+    offsetY: 0
   };
 
   var addToAcc = function (index, ctx) {
@@ -258,7 +248,7 @@ Graph.prototype.scanRadius = function (origin, thread, radius) {
   var context = this;
   var verified = _.find(nodes, function (index) {
     //check for existence of already drawn edge
-    if (edges[origin] && edges[origin].indexOf(index) >= 0) {
+    if (edges[origin] && edges[origin].nodes.indexOf(index) >= 0) {
       return false;
     }
     //check if all nodes in between have enough space
@@ -286,7 +276,7 @@ Graph.prototype.walkToNearbyNode = function (origin, thread, radius) {
   var context = this;
   var verified = _.find(nodes, function (index) {
     //check for existence of already drawn edge
-    if (edges[origin] && edges[origin].indexOf(index) >= 0) {
+    if (edges[origin] && edges[origin].nodes.indexOf(index) >= 0) {
       return false;
     }
     //check if all nodes in between have enough space
@@ -317,30 +307,34 @@ Graph.prototype.decrement = function (line, thread) {
   }, this);
 };
 
-Graph.prototype.addEdge = function (pt1, pt2) {
+Graph.prototype.addEdge = function (pt1, pt2, thread) {
   if (this.edges[pt1] === undefined) {
-    this.edges[pt1] = [];
+    this.edges[pt1] = {nodes: [], colors: []};
   }
   if (this.edges[pt2] === undefined) {
-    this.edges[pt2] = [];
+    this.edges[pt2] = {nodes: [], colors: []};
   }
-  this.edges[pt1].push(pt2);
-  this.edges[pt2].push(pt1);
+  this.edges[pt1].nodes.push(pt2);
+  this.edges[pt1].colors.push(thread.render);
+  this.edges[pt2].nodes.push(pt1);
+  this.edges[pt2].colors.push(null);
 };
 
 var Canvas = {
   paint: function (pixels, pt1, pt2, thread, graph) {
-    var rc1, rc2, RC1, RC2, slope, indices, i, width, rgb;
+    var rc1, rc2, RC1, RC2, node1, node2, slope, indices, i, width, rgb;
     width = pixels.width;
     rc1 = Helpers.convertToRC(pt1, graph.width);
     rc2 = Helpers.convertToRC(pt2, graph.width);
+    node1 = graph.getNodeValue(pt1);
+    node2 = graph.getNodeValue(pt2);
     RC1 = {
-      row: rc1.row * graph.heightRatio,
-      column: rc1.column * graph.widthRatio
+      row: rc1.row * graph.heightRatio + node1.offsetX,
+      column: rc1.column * graph.widthRatio + node1.offsetY
     };
     RC2 = {
-      row: rc2.row * graph.heightRatio,
-      column: rc2.column * graph.widthRatio
+      row: rc2.row * graph.heightRatio + node2.offsetX,
+      column: rc2.column * graph.widthRatio + node2.offsetY
     };
     slope = Helpers.findSlope(RC1, RC2);
     indices = [];
@@ -398,4 +392,54 @@ var Canvas = {
     var context = canvas.getContext('2d');
     context.putImageData(data, 0, 0);
   }
+};
+
+Graph.prototype.cleanRenderNodes = function (imageData) {
+  // here, render nodes on to a blank imgData.
+  _.each(this.edges, function (val, index) {
+    _.each(val.nodes, function (node, id) {
+      if (val.colors[id] !== null) {
+        Canvas.paint(imageData, index, node, val.colors[id], this);
+      }
+    }, this);
+  }, this);
+  return imageData;
+};
+
+var stepFunction = function (graph, index, imageData) {
+  var i, j, rcPoint, arr, mapped, sorted;
+  var pixelLocation = graph.scaleToPixel(index) / 4;
+  var rangeX = graph.widthRatio;
+  var rangeY = graph.heightRatio;
+  arr = [];
+  rcPoint = Helpers.convertToRC(pixelLocation, imageData.width);
+  //lets say row10, column10
+  for (i = 0; i < rangeX; i++) {
+    for (j = 0; j < rangeY; j++) {
+      arr.push({index: Helpers.rcToIndex(i + rcPoint.row, j + rcPoint.column, imageData.width), x: i, y: j});
+    }
+  }
+
+  mapped = _.map(arr, function (data) {
+    var num = data.index;
+    return {num: num, offsetX: data.x, offsetY: data.y, red: imageData.data[num * 4], green: imageData.data[num * 4 + 1], blue: imageData.data[num * 4 + 2]};
+  });
+
+  sorted = _.sortBy(mapped, function (data) {
+    return data.red + data.green + data.blue;
+  });
+  // console.log("top:");
+  // console.log(sorted[0]);
+  return {x: sorted[0].offsetX, y: sorted[0].offsetY};
+};
+
+Graph.prototype.nodeStep = function (imageData) {
+  // here, render nodes on to a blank imgData.
+  _.each(this.nodes, function (node, index) {
+    if (node !== null) {
+      var offset = stepFunction(this, index, imageData);
+      node.offsetX = offset.x;
+      node.offsetY = offset.y;
+    }
+  }, this);
 };
