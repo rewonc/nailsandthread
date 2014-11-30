@@ -15,12 +15,55 @@ $(function () {
   var numLinesDrawn = 1;
 
   //These correspond to real-life strings and can be adjusted for real color characteristics
-  var threads = [
-    {c: LINE_INTENSITY, m: 0, y: 0, k: 0, render: {c: RENDER_INTENSITY, m: 0, y: 0, k: 0}, name: "cyan" },
-    {c: 0, m: LINE_INTENSITY, y: 0, k: 0, render: {c: 0, m: RENDER_INTENSITY, y: 0, k: 0}, name: "magenta" },
-    {c: 0, m: 0, y: LINE_INTENSITY, k: 0, render: {c: 0, m: 0, y: RENDER_INTENSITY, k: 0}, name: "yellow" },
-    {c: 0, m: 0, y: 0, k: LINE_INTENSITY, render: {c: 0, m: 0, y: 0, k: RENDER_INTENSITY}, name: "key" }
-  ];
+  var threads = [{
+    c: LINE_INTENSITY,
+    m: 0,
+    y: 0,
+    k: 0,
+    render: {
+      c: RENDER_INTENSITY,
+      m: 0,
+      y: 0,
+      k: 0
+    },
+    name: "cyan"
+  }, {
+    c: 0,
+    m: LINE_INTENSITY,
+    y: 0,
+    k: 0,
+    render: {
+      c: 0,
+      m: RENDER_INTENSITY,
+      y: 0,
+      k: 0
+    },
+    name: "magenta"
+  }, {
+    c: 0,
+    m: 0,
+    y: LINE_INTENSITY,
+    k: 0,
+    render: {
+      c: 0,
+      m: 0,
+      y: RENDER_INTENSITY,
+      k: 0
+    },
+    name: "yellow"
+  }, {
+    c: 0,
+    m: 0,
+    y: 0,
+    k: LINE_INTENSITY,
+    render: {
+      c: 0,
+      m: 0,
+      y: 0,
+      k: RENDER_INTENSITY
+    },
+    name: "key"
+  }];
 
   //These are the canvases on the page
   var source = document.getElementById('source');
@@ -43,15 +86,15 @@ $(function () {
     }
     result = graph.walkToNearbyNode(origin, thread, MAX_RADIUS);
     if (result.node !== undefined) {
-      graph.addEdge(origin, result.node);
+      graph.addEdge(origin, result.node, thread);
       graph.decrement(result.line, thread);
-      Canvas.paint(pixelsToRender, origin, result.node, thread.render, graph);
+      Canvas.paint(pixelsToRender, origin, result.node, thread.render,
+        graph);
       timeoutFn[thread.name] = setTimeout(function () {
         drawNextLine(graph, thread, result.node);
       }, 1);
       Canvas.putImage(target, pixelsToRender);
     } else {
-      console.log("undefined result from node search");
       timeoutFn[thread.name] = setTimeout(function () {
         drawNextLine(graph, thread);
       }, 1);
@@ -60,8 +103,7 @@ $(function () {
   };
 
   var connectNodes = function (origin, result, graph, thread) {
-    console.log("connectNodes");
-    graph.addEdge(origin, result.node);
+    graph.addEdge(origin, result.node, thread);
     graph.decrement(result.line, thread);
     Canvas.paint(pixelsToRender, origin, result.node, thread.render, graph);
     Canvas.putImage(target, pixelsToRender);
@@ -70,16 +112,13 @@ $(function () {
   var continuousLine = function (graph, thread, level, start, end) {
 
     if (level === 0) {
-      console.log('line exhausted');
       numLinesDrawn++;
       $('#count').text(numLinesDrawn);
       return continuousLine(graph, thread, MAX_RADIUS);
     }
-    console.log('contLine');
     var result, scan1, scan2;
 
     if (start === undefined || end === undefined) {
-      console.log('undefined block');
       start = graph.getRandomNode();
       result = graph.walkToNearbyNode(start, thread, level);
       if (result.node !== undefined) {
@@ -92,7 +131,6 @@ $(function () {
 
     scan1 = graph.scanRadius(start, thread, level);
     if (scan1.node !== undefined) {
-      console.log('first scan');
       connectNodes(start, scan1, graph, thread);
       timeoutFn[thread.name] = setTimeout(function () {
         continuousLine(graph, thread, level, scan1.node, end);
@@ -102,20 +140,25 @@ $(function () {
 
     scan2 = graph.scanRadius(end, thread, level);
     if (scan2.node !== undefined) {
-      console.log('second scan');
       connectNodes(start, scan2, graph, thread);
       timeoutFn[thread.name] = setTimeout(function () {
         continuousLine(graph, thread, level, scan2.node, start);
       }, 1);
       return;
     }
-
-    console.log('scan failure');
     timeoutFn[thread.name] = setTimeout(function () {
       continuousLine(graph, thread, level - 1, start, end);
     }, 1);
     return;
 
+  };
+
+  var cleanRender = function (canvas, graph) {
+    var newData = Canvas.newImageData(canvas, graph.imageWidth, graph.imageHeight,
+      255);
+    var modifiedData = graph.cleanRenderNodes(newData);
+    Canvas.putImage(canvas, modifiedData);
+    pixelsToRender = modifiedData;
   };
 
   var init = function (graph) {
@@ -152,15 +195,26 @@ $(function () {
       console.log(pixelsToRender);
       console.log(nodeValues);
     });
+
     $('#restart').click(function () {
       init(graph);
     });
+
     $('#show').click(function () {
       $(source).show();
     });
 
     $('#nodes').click(function () {
       Canvas.renderNodes(target, nodeValues, graph);
+    });
+
+    $('#clean').click(function () {
+      cleanRender(target, graph);
+    });
+
+    $('#step').click(function () {
+      graph.nodeStep(pixels);
+      cleanRender(target, graph);
     });
 
     init(graph);
