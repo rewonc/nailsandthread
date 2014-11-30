@@ -3,26 +3,25 @@ $(function () {
   'use strict';
 
   //Constants to adjust per drawing
-  var MAX_RADIUS = 8;
+  var MAX_RADIUS = 4;
   var SCALE_COEFFICIENT = 1;
-  var RENDER_INTENSITY = 1;
   var LINE_INTENSITY = 10 / SCALE_COEFFICIENT;
-  var GRAPH_WIDTH = 80 * SCALE_COEFFICIENT;
-  var GRAPH_HEIGHT = 25 * SCALE_COEFFICIENT;
-  var IMAGE_SOURCE = 'img/eyes-800-250.jpg';
+  var GRAPH_WIDTH = 46 * SCALE_COEFFICIENT;
+  var GRAPH_HEIGHT = 35 * SCALE_COEFFICIENT;
+  var IMAGE_SOURCE = 'img/eye-460-350.jpg';
 
   //Track number of lines drawn
   var numLinesDrawn = 1;
 
   //These correspond to real-life strings and can be adjusted for real color characteristics
-
+  
   var threads = [{
     c: LINE_INTENSITY,
     m: 0,
     y: 0,
     k: 0,
     render: {
-      c: RENDER_INTENSITY,
+      c: 1,
       m: 0,
       y: 0,
       k: 0
@@ -35,7 +34,7 @@ $(function () {
     k: 0,
     render: {
       c: 0,
-      m: RENDER_INTENSITY,
+      m: 1,
       y: 0,
       k: 0
     },
@@ -48,7 +47,7 @@ $(function () {
     render: {
       c: 0,
       m: 0,
-      y: RENDER_INTENSITY,
+      y: 1,
       k: 0
     },
     name: "yellow"
@@ -61,74 +60,74 @@ $(function () {
       c: 0,
       m: 0,
       y: 0,
-      k: RENDER_INTENSITY
+      k: 1
     },
     name: "key"
   }];
-
-  /*
-  var threads = [{
-    c: LINE_INTENSITY * 0.671,
-    m: LINE_INTENSITY,
-    y: 0,
-    k: LINE_INTENSITY * 0.667,
-    render: {
-      c: 0.671,
-      m: 1,
-      y: 0,
-      k: 0.667
-    },
-    name: "dark-purple"
-  }, {
-    c: LINE_INTENSITY * 0.124,
-    m: 0,
-    y: 0,
-    k: LINE_INTENSITY * 0.114,
-    render: {
-      c: 0.124,
-      m: 0,
-      y: 0,
-      k: 0.114
-    },
-    name: "light-blue"
-  }, {
-    c: 0,
-    m: LINE_INTENSITY,
-    y: LINE_INTENSITY * 0.89,
-    k: 0,
-    render: {
-      c: 0,
-      m: 1,
-      y: 0.89,
-      k: 0
-    },
-    name: "bright-red"
-  }, {
-    c: 0,
-    m: LINE_INTENSITY * 0.224,
-    y: LINE_INTENSITY * 0.78,
-    k: 0,
-    render: {
-      c: 0,
-      m: 0.224,
-      y: 0.78,
-      k: 0
-    },
-    name: "bright-yellow"
-  }, {
-    c: 0,
-    m: LINE_INTENSITY * 0.224,
-    y: LINE_INTENSITY * 0.78,
-    k: 0,
-    render: {
-      c: 0,
-      m: 0.224,
-      y: 0.78,
-      k: 0
-    },
-    name: "bright-yellow"
-  }];
-  */
+  
+  
+  // var threads = [{
+  //   c: LINE_INTENSITY * 0.671,
+  //   m: LINE_INTENSITY,
+  //   y: 0,
+  //   k: LINE_INTENSITY * 0.667,
+  //   render: {
+  //     c: 0.671,
+  //     m: 1,
+  //     y: 0,
+  //     k: 0.667
+  //   },
+  //   name: "dark-purple"
+  // }, {
+  //   c: LINE_INTENSITY * 0.124,
+  //   m: 0,
+  //   y: 0,
+  //   k: LINE_INTENSITY * 0.114,
+  //   render: {
+  //     c: 0.124,
+  //     m: 0,
+  //     y: 0,
+  //     k: 0.114
+  //   },
+  //   name: "light-blue"
+  // }, {
+  //   c: 0,
+  //   m: LINE_INTENSITY,
+  //   y: LINE_INTENSITY * 0.89,
+  //   k: 0,
+  //   render: {
+  //     c: 0,
+  //     m: 1,
+  //     y: 0.89,
+  //     k: 0
+  //   },
+  //   name: "bright-red"
+  // }, {
+  //   c: 0,
+  //   m: LINE_INTENSITY * 0.224,
+  //   y: LINE_INTENSITY * 0.78,
+  //   k: 0,
+  //   render: {
+  //     c: 0,
+  //     m: 0.224,
+  //     y: 0.78,
+  //     k: 0
+  //   },
+  //   name: "bright-yellow"
+  // }, {
+  //   c: 0,
+  //   m: 0,
+  //   y: 0,
+  //   k: LINE_INTENSITY,
+  //   render: {
+  //     c: 0,
+  //     m: 0.224,
+  //     y: 0.78,
+  //     k: 1
+  //   },
+  //   name: "key"
+  // }];
+  
 
   //These are the canvases on the page
   var source = document.getElementById('source');
@@ -231,7 +230,7 @@ $(function () {
     continuousLine(graph, threads[1], MAX_RADIUS);
     continuousLine(graph, threads[2], MAX_RADIUS);
     continuousLine(graph, threads[3], MAX_RADIUS);
-    // continuousLine(graph, threads[4], MAX_RADIUS);
+    continuousLine(graph, threads[4], MAX_RADIUS);
 
   };
 
