@@ -3,7 +3,7 @@ $(function () {
   'use strict';
 
   //Constants to adjust per drawing
-  var MAX_RADIUS = 4;
+  var MAX_RADIUS = 1;
   var SCALE_COEFFICIENT = 1;
   var LINE_INTENSITY = 10 / SCALE_COEFFICIENT;
   var GRAPH_WIDTH = 46 * SCALE_COEFFICIENT;
@@ -14,7 +14,6 @@ $(function () {
   var numLinesDrawn = 1;
 
   //These correspond to real-life strings and can be adjusted for real color characteristics
-  
   var threads = [{
     c: LINE_INTENSITY,
     m: 0,
@@ -64,8 +63,6 @@ $(function () {
     },
     name: "key"
   }];
-  
-  
   // var threads = [{
   //   c: LINE_INTENSITY * 0.671,
   //   m: LINE_INTENSITY,
@@ -127,7 +124,6 @@ $(function () {
   //   },
   //   name: "key"
   // }];
-  
 
   //These are the canvases on the page
   var source = document.getElementById('source');
@@ -140,31 +136,6 @@ $(function () {
   var pixelsToRender, nodeValues;
 
   var timeoutFn = {};
-
-  var drawNextLine = function (graph, thread, previous) {
-    var origin, result;
-    if (previous === undefined) {
-      origin = graph.getRandomNode();
-    } else {
-      origin = previous;
-    }
-    result = graph.walkToNearbyNode(origin, thread, MAX_RADIUS);
-    if (result.node !== undefined) {
-      graph.addEdge(origin, result.node, thread);
-      graph.decrement(result.line, thread);
-      Canvas.paint(pixelsToRender, origin, result.node, thread.render,
-        graph);
-      timeoutFn[thread.name] = setTimeout(function () {
-        drawNextLine(graph, thread, result.node);
-      }, 1);
-      Canvas.putImage(target, pixelsToRender);
-    } else {
-      timeoutFn[thread.name] = setTimeout(function () {
-        drawNextLine(graph, thread);
-      }, 1);
-      Canvas.putImage(target, pixelsToRender);
-    }
-  };
 
   var connectNodes = function (origin, result, graph, thread) {
     graph.addEdge(origin, result.node, thread);
@@ -204,9 +175,9 @@ $(function () {
 
     scan2 = graph.scanRadius(end, thread, level);
     if (scan2.node !== undefined) {
-      connectNodes(start, scan2, graph, thread);
+      connectNodes(end, scan2, graph, thread);
       timeoutFn[thread.name] = setTimeout(function () {
-        continuousLine(graph, thread, level, scan2.node, start);
+        continuousLine(graph, thread, level, scan2.node, end);
       }, 1);
       return;
     }
@@ -230,7 +201,7 @@ $(function () {
     continuousLine(graph, threads[1], MAX_RADIUS);
     continuousLine(graph, threads[2], MAX_RADIUS);
     continuousLine(graph, threads[3], MAX_RADIUS);
-    continuousLine(graph, threads[4], MAX_RADIUS);
+    // continuousLine(graph, threads[4], MAX_RADIUS);
 
   };
 

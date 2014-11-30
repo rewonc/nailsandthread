@@ -143,7 +143,7 @@ var Helpers = {
     arr = [];
     rcPoint = Helpers.convertToRC(origin, graph.width);
     _.each([rcPoint.row - radius, rcPoint.row + radius], function (row) {
-      for (j = rcPoint.column - radius; j <= rcPoint.column + radius; j++) {
+      for (j = rcPoint.column - radius; j < rcPoint.column + radius; j++) {
         if (!(row < 0 || j < 0 || row >= graph.height || j >= graph.width)) {
           arr.push(Helpers.rcToIndex(row, j, graph.width));
         }
@@ -151,7 +151,7 @@ var Helpers = {
     });
 
     _.each([rcPoint.column - radius, rcPoint.column + radius], function (column) {
-      for (i = rcPoint.row - radius; i <= rcPoint.row + radius; i++) {
+      for (i = rcPoint.row - radius; i < rcPoint.row + radius; i++) {
         if (!(i < 0 || column < 0 || i >= graph.height || column >= graph.width)) {
           arr.push(Helpers.rcToIndex(i, column, graph.width));
         }
@@ -326,6 +326,14 @@ var Canvas = {
     width = pixels.width;
     rc1 = Helpers.convertToRC(pt1, graph.width);
     rc2 = Helpers.convertToRC(pt2, graph.width);
+
+    if (Math.abs(rc1.column - rc2.column) > 2) {
+      console.log('err');
+    }
+    if (Math.abs(rc1.row - rc2.row) > 2) {
+      console.log('err');
+    }
+    
     node1 = graph.getNodeValue(pt1);
     node2 = graph.getNodeValue(pt2);
     RC1 = {
