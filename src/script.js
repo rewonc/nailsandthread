@@ -5,16 +5,17 @@ $(function () {
   //Constants to adjust per drawing
   var MAX_RADIUS = 8;
   var SCALE_COEFFICIENT = 1;
+  var RENDER_INTENSITY = 1;
   var LINE_INTENSITY = 10 / SCALE_COEFFICIENT;
-  var RENDER_INTENSITY = 0.8;
-  var GRAPH_WIDTH = 40 * SCALE_COEFFICIENT;
-  var GRAPH_HEIGHT = 53 * SCALE_COEFFICIENT;
-  var IMAGE_SOURCE = 'img/clint-400-530.jpg';
+  var GRAPH_WIDTH = 80 * SCALE_COEFFICIENT;
+  var GRAPH_HEIGHT = 25 * SCALE_COEFFICIENT;
+  var IMAGE_SOURCE = 'img/eyes-800-250.jpg';
 
   //Track number of lines drawn
   var numLinesDrawn = 1;
 
   //These correspond to real-life strings and can be adjusted for real color characteristics
+
   var threads = [{
     c: LINE_INTENSITY,
     m: 0,
@@ -64,6 +65,70 @@ $(function () {
     },
     name: "key"
   }];
+
+  /*
+  var threads = [{
+    c: LINE_INTENSITY * 0.671,
+    m: LINE_INTENSITY,
+    y: 0,
+    k: LINE_INTENSITY * 0.667,
+    render: {
+      c: 0.671,
+      m: 1,
+      y: 0,
+      k: 0.667
+    },
+    name: "dark-purple"
+  }, {
+    c: LINE_INTENSITY * 0.124,
+    m: 0,
+    y: 0,
+    k: LINE_INTENSITY * 0.114,
+    render: {
+      c: 0.124,
+      m: 0,
+      y: 0,
+      k: 0.114
+    },
+    name: "light-blue"
+  }, {
+    c: 0,
+    m: LINE_INTENSITY,
+    y: LINE_INTENSITY * 0.89,
+    k: 0,
+    render: {
+      c: 0,
+      m: 1,
+      y: 0.89,
+      k: 0
+    },
+    name: "bright-red"
+  }, {
+    c: 0,
+    m: LINE_INTENSITY * 0.224,
+    y: LINE_INTENSITY * 0.78,
+    k: 0,
+    render: {
+      c: 0,
+      m: 0.224,
+      y: 0.78,
+      k: 0
+    },
+    name: "bright-yellow"
+  }, {
+    c: 0,
+    m: LINE_INTENSITY * 0.224,
+    y: LINE_INTENSITY * 0.78,
+    k: 0,
+    render: {
+      c: 0,
+      m: 0.224,
+      y: 0.78,
+      k: 0
+    },
+    name: "bright-yellow"
+  }];
+  */
 
   //These are the canvases on the page
   var source = document.getElementById('source');
@@ -162,10 +227,12 @@ $(function () {
   };
 
   var init = function (graph) {
-    drawNextLine(graph, threads[0]);
-    drawNextLine(graph, threads[1]);
-    drawNextLine(graph, threads[2]);
+    continuousLine(graph, threads[0], MAX_RADIUS);
+    continuousLine(graph, threads[1], MAX_RADIUS);
+    continuousLine(graph, threads[2], MAX_RADIUS);
     continuousLine(graph, threads[3], MAX_RADIUS);
+    // continuousLine(graph, threads[4], MAX_RADIUS);
+
   };
 
   //start the algorithm on image load

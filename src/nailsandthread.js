@@ -426,6 +426,7 @@ var stepFunction = function (graph, index, imageData) {
   });
 
   sorted = _.sortBy(mapped, function (data) {
+    //as this goes in ascending order, this will show darkest values first
     return data.red + data.green + data.blue;
   });
   // console.log("top:");
