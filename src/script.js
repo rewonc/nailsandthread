@@ -4,12 +4,12 @@ $(function () {
 
   //Constants to adjust per drawing
   var MAX_RADIUS = 8;
-  var SCALE_COEFFICIENT = 5;
-  var LINE_INTENSITY = 5 / SCALE_COEFFICIENT;
+  var SCALE_COEFFICIENT = 1;
+  var LINE_INTENSITY = 10 / SCALE_COEFFICIENT;
   var RENDER_INTENSITY = 0.8;
   var GRAPH_WIDTH = 40 * SCALE_COEFFICIENT;
-  var GRAPH_HEIGHT = 60 * SCALE_COEFFICIENT;
-  var IMAGE_SOURCE = 'img/beard-400-600.jpg';
+  var GRAPH_HEIGHT = 53 * SCALE_COEFFICIENT;
+  var IMAGE_SOURCE = 'img/clint-400-530.jpg';
 
   //Track number of lines drawn
   var numLinesDrawn = 1;
