@@ -3,7 +3,7 @@ $(function () {
   'use strict';
 
   //Constants to adjust per drawing
-  var MAX_RADIUS = 1;
+  var MAX_RADIUS = 10;
   var SCALE_COEFFICIENT = 1;
   var LINE_INTENSITY = 10 / SCALE_COEFFICIENT;
   var GRAPH_WIDTH = 46 * SCALE_COEFFICIENT;
@@ -14,103 +14,42 @@ $(function () {
   var numLinesDrawn = 1;
 
   //These correspond to real-life strings and can be adjusted for real color characteristics
-  var threads = [{
-    c: LINE_INTENSITY,
-    m: 0,
-    y: 0,
-    k: 0,
-    render: {
-      c: 1,
-      m: 0,
-      y: 0,
-      k: 0
-    },
-    name: "cyan"
-  }, {
-    c: 0,
-    m: LINE_INTENSITY,
-    y: 0,
-    k: 0,
-    render: {
-      c: 0,
-      m: 1,
-      y: 0,
-      k: 0
-    },
-    name: "magenta"
-  }, {
-    c: 0,
-    m: 0,
-    y: LINE_INTENSITY,
-    k: 0,
-    render: {
-      c: 0,
-      m: 0,
-      y: 1,
-      k: 0
-    },
-    name: "yellow"
-  }, {
-    c: 0,
-    m: 0,
-    y: 0,
-    k: LINE_INTENSITY,
-    render: {
-      c: 0,
-      m: 0,
-      y: 0,
-      k: 1
-    },
-    name: "key"
-  }];
   // var threads = [{
-  //   c: LINE_INTENSITY * 0.671,
-  //   m: LINE_INTENSITY,
-  //   y: 0,
-  //   k: LINE_INTENSITY * 0.667,
-  //   render: {
-  //     c: 0.671,
-  //     m: 1,
-  //     y: 0,
-  //     k: 0.667
-  //   },
-  //   name: "dark-purple"
-  // }, {
-  //   c: LINE_INTENSITY * 0.124,
+  //   c: LINE_INTENSITY,
   //   m: 0,
   //   y: 0,
-  //   k: LINE_INTENSITY * 0.114,
+  //   k: 0,
   //   render: {
-  //     c: 0.124,
+  //     c: 1,
   //     m: 0,
   //     y: 0,
-  //     k: 0.114
+  //     k: 0
   //   },
-  //   name: "light-blue"
+  //   name: "cyan"
   // }, {
   //   c: 0,
   //   m: LINE_INTENSITY,
-  //   y: LINE_INTENSITY * 0.89,
+  //   y: 0,
   //   k: 0,
   //   render: {
   //     c: 0,
   //     m: 1,
-  //     y: 0.89,
+  //     y: 0,
   //     k: 0
   //   },
-  //   name: "bright-red"
+  //   name: "magenta"
   // }, {
   //   c: 0,
-  //   m: LINE_INTENSITY * 0.224,
-  //   y: LINE_INTENSITY * 0.78,
+  //   m: 0,
+  //   y: LINE_INTENSITY,
   //   k: 0,
   //   render: {
   //     c: 0,
-  //     m: 0.224,
-  //     y: 0.78,
+  //     m: 0,
+  //     y: 1,
   //     k: 0
   //   },
-  //   name: "bright-yellow"
+  //   name: "yellow"
   // }, {
   //   c: 0,
   //   m: 0,
@@ -118,12 +57,61 @@ $(function () {
   //   k: LINE_INTENSITY,
   //   render: {
   //     c: 0,
-  //     m: 0.224,
-  //     y: 0.78,
+  //     m: 0,
+  //     y: 0,
   //     k: 1
   //   },
   //   name: "key"
   // }];
+  var threads = [{
+    c: 0,
+    m: 0.86 * LINE_INTENSITY,
+    y: 0.5 * LINE_INTENSITY,
+    k: LINE_INTENSITY * 0.271,
+    render: {
+      c: 0,
+      m: 0.86,
+      y: 0.5,
+      k: 0.271
+    },
+    name: "magneta"
+  }, {
+    c: 0.649 * LINE_INTENSITY,
+    m: 0.131 * LINE_INTENSITY,
+    y: 0,
+    k: 0.341 * LINE_INTENSITY,
+    render: {
+      c: 0.649,
+      m: 0.131,
+      y: 0,
+      k: 0.341
+    },
+    name: "cyan"
+  }, {
+    c: 0,
+    m: 0.07 * LINE_INTENSITY,
+    y: 0.42 * LINE_INTENSITY,
+    k: 0,
+    render: {
+      c: 0,
+      m: 0.07,
+      y: 0.42,
+      k: 0
+    },
+    name: "yellow"
+  }, {
+    c: 0,
+    m: 0,
+    y: 0,
+    k: 0.949 * LINE_INTENSITY,
+    render: {
+      c: 0,
+      m: 0,
+      y: 0,
+      k: 0.949
+    },
+    name: "key"
+  }];
 
   //These are the canvases on the page
   var source = document.getElementById('source');
