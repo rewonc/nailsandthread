@@ -5,10 +5,10 @@ $(function () {
   //Constants to adjust per drawing
   var MAX_RADIUS = 2;
   var SCALE_COEFFICIENT = 1;
-  var LINE_INTENSITY = 10 / SCALE_COEFFICIENT;
-  var GRAPH_WIDTH = 60 * SCALE_COEFFICIENT;
+  var LINE_INTENSITY = 6 / SCALE_COEFFICIENT;
+  var GRAPH_WIDTH = 46 * SCALE_COEFFICIENT;
   var GRAPH_HEIGHT = 60 * SCALE_COEFFICIENT;
-  var IMAGE_SOURCE = 'img/600x600-animal.jpg';
+  var IMAGE_SOURCE = 'img/tian-460-600-vib.jpg';
 
   //Track number of lines drawn
   var numLinesDrawn = 1;
@@ -90,12 +90,12 @@ $(function () {
   }, {
     c: 0,
     m: 0.07 * LINE_INTENSITY,
-    y: 0.82 * LINE_INTENSITY,
+    y: 0.42 * LINE_INTENSITY,
     k: 0,
     render: {
       c: 0,
       m: 0.07,
-      y: 0.82,
+      y: 0.42,
       k: 0
     },
     name: "yellow"
