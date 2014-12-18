@@ -6,63 +6,14 @@ $(function () {
   var MAX_RADIUS = 2;
   var SCALE_COEFFICIENT = 1;
   var LINE_INTENSITY = 6 / SCALE_COEFFICIENT;
-  var GRAPH_WIDTH = 46 * SCALE_COEFFICIENT;
+  var GRAPH_WIDTH = 60 * SCALE_COEFFICIENT;
   var GRAPH_HEIGHT = 60 * SCALE_COEFFICIENT;
-  var IMAGE_SOURCE = 'img/tian-460-600-vib.jpg';
+  var IMAGE_SOURCE = 'img/whoa-eye-vibrant-600-600.jpg';
 
-  //Track number of lines drawn
+
   var numLinesDrawn = 1;
 
-  //These correspond to real-life strings and can be adjusted for real color characteristics
-  // var threads = [{
-  //   c: LINE_INTENSITY,
-  //   m: 0,
-  //   y: 0,
-  //   k: 0,
-  //   render: {
-  //     c: 1,
-  //     m: 0,
-  //     y: 0,
-  //     k: 0
-  //   },
-  //   name: "cyan"
-  // }, {
-  //   c: 0,
-  //   m: LINE_INTENSITY,
-  //   y: 0,
-  //   k: 0,
-  //   render: {
-  //     c: 0,
-  //     m: 1,
-  //     y: 0,
-  //     k: 0
-  //   },
-  //   name: "magenta"
-  // }, {
-  //   c: 0,
-  //   m: 0,
-  //   y: LINE_INTENSITY,
-  //   k: 0,
-  //   render: {
-  //     c: 0,
-  //     m: 0,
-  //     y: 1,
-  //     k: 0
-  //   },
-  //   name: "yellow"
-  // }, {
-  //   c: 0,
-  //   m: 0,
-  //   y: 0,
-  //   k: LINE_INTENSITY,
-  //   render: {
-  //     c: 0,
-  //     m: 0,
-  //     y: 0,
-  //     k: 1
-  //   },
-  //   name: "key"
-  // }];
+
   var threads = [{
     c: 0,
     m: 0.86 * LINE_INTENSITY,
@@ -189,8 +140,6 @@ $(function () {
     continuousLine(graph, threads[1], MAX_RADIUS);
     continuousLine(graph, threads[2], MAX_RADIUS);
     continuousLine(graph, threads[3], MAX_RADIUS);
-    // continuousLine(graph, threads[4], MAX_RADIUS);
-
   };
 
   //start the algorithm on image load
@@ -243,7 +192,6 @@ $(function () {
     });
 
     init(graph);
-    // init(graph);
 
   });
 
