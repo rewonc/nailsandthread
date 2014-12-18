@@ -134,6 +134,13 @@ $(function () {
     Canvas.putImage(canvas, modifiedData);
     pixelsToRender = modifiedData;
   };
+  var cleanRenderCustom = function (canvas, graph) {
+    var newData = Canvas.newImageData(canvas, graph.imageWidth, graph.imageHeight,
+      255);
+    var modifiedData = graph.cleanRenderCustom(newData);
+    Canvas.putImage(canvas, modifiedData);
+    pixelsToRender = modifiedData;
+  };
 
   var init = function (graph) {
     continuousLine(graph, threads[0], MAX_RADIUS);
@@ -184,6 +191,10 @@ $(function () {
 
     $('#clean').click(function () {
       cleanRender(target, graph);
+    });
+
+    $('#cleanCustom').click(function () {
+      cleanRenderCustom(target, graph);
     });
 
     $('#step').click(function () {
