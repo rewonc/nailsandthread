@@ -433,6 +433,24 @@ Graph.prototype.cleanRenderCustom = function (imageData) {
   return imageData;
 };
 
+Graph.prototype.renderDFS = function (imageData) {
+  // here, render nodes on to a blank imgData.
+  _.each(this.edges, function (val, index) {
+    var list = _.sortBy(_.zip(val.nodes, val.colors), function(zipped){
+      if (zipped[1] !== null) {
+        return zipped[1].c + zipped[1].m + zipped[1].k + zipped[1].y;
+      }
+      return 0;
+    });
+
+    _.each(list, function (item) {
+      if (item[1] !== null) {
+        Canvas.paint(imageData, index, item[0], item[1], this);
+      }
+    }, this);
+  }, this);
+  return imageData;
+};
 
 var stepFunction = function (graph, index, imageData) {
   var i, j, rcPoint, arr, mapped, sorted;
