@@ -490,3 +490,21 @@ Graph.prototype.nodeStep = function (imageData) {
     }
   }, this);
 };
+
+Graph.prototype.logNodeLocations = function () {
+  var ctx = this;
+  console.log(ctx);
+   _.each(ctx.nodes, function(val, index) {
+    var rc = Helpers.convertToRC(index, ctx.width);
+    if (val !== null) {
+      console.log("R:" + rc.row, "C:" + rc.column, val.offsetX / 10, "x", val.offsetY / 10);
+    } else {
+      console.log("R:" + rc.row, "C:" + rc.column, "null");
+    }
+  });
+  //Print out by 6x6 blocks. Null or offset (in pixels) from the 0, 0 pixel in each square. 
+  //There are 10 x 10 pixels in each block.
+  //example output:
+  //row 1, col 1: x 9 y 0  <--x is offset by 9, y is offset by 0.
+
+};

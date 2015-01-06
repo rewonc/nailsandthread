@@ -197,6 +197,10 @@ $(function () {
       cleanRenderCustom(target, graph);
     });
 
+    $('#logNodes').click(function () {
+      graph.logNodeLocations();
+    });
+
     $('#step').click(function () {
       graph.nodeStep(pixels);
       cleanRender(target, graph);
