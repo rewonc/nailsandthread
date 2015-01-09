@@ -433,6 +433,43 @@ Graph.prototype.cleanRenderCustom = function (imageData) {
   return imageData;
 };
 
+Graph.prototype.renderSkeleton = function (imageData) {
+  // here, render nodes on to a blank imgData.
+  // render the grid
+  var i, len, width, dimensions;
+
+  for (i = 0, len = imageData.data.length, width = imageData.width * 4; i < len; i += 4) {
+    dimensions = Helpers.convertToRC(i/4, imageData.width);
+    if (dimensions.row % 10 === 0) {
+      imageData.data[i] = 255;
+      imageData.data[i+1] = 0;
+      imageData.data[i+2] = 0;
+      imageData.data[i+3] = 255;
+    } else if (dimensions.column % 10 === 0) {
+      imageData.data[i] = 255;
+      imageData.data[i+1] = 0;
+      imageData.data[i+2] = 0;
+      imageData.data[i+3] = 255;
+    } 
+  }
+
+  console.log(this.nodes);
+  _.each(this.nodes, function (val, index) {
+    if (val !== null) {
+      var index = this.scaleToPixel(index) / 4;
+      var rc = Helpers.convertToRC(index, imageData.width);
+      var index1 = Helpers.rcToIndex(rc.row + val.offsetY, rc.column + val.offsetX, imageData.width);
+      var newIndex = index1 * 4;
+      imageData.data[newIndex] = 0;
+      imageData.data[newIndex+1] = 255;
+      imageData.data[newIndex+2] = 0;
+      imageData.data[newIndex+3] = 255;
+    }
+  }, this);
+
+  return imageData;
+};
+
 Graph.prototype.renderDFS = function (imageData) {
   // here, render nodes on to a blank imgData.
   _.each(this.edges, function (val, index) {

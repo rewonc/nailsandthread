@@ -142,6 +142,13 @@ $(function () {
     pixelsToRender = modifiedData;
   };
 
+  var renderSkeleton = function(canvas, graph) {
+    var newData = Canvas.newImageData(canvas, graph.imageWidth, graph.imageHeight,
+      255);
+    var modifiedData = graph.renderSkeleton(newData);
+    Canvas.putImage(canvas, modifiedData);
+  };
+
   var init = function (graph) {
     continuousLine(graph, threads[0], MAX_RADIUS);
     continuousLine(graph, threads[1], MAX_RADIUS);
@@ -195,6 +202,10 @@ $(function () {
 
     $('#cleanCustom').click(function () {
       cleanRenderCustom(target, graph);
+    });
+
+    $('#skeletonRender').click(function () {
+      renderSkeleton(target, graph);
     });
 
     $('#logNodes').click(function () {
