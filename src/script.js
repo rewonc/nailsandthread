@@ -3,11 +3,11 @@ $(function () {
   'use strict';
 
   //Constants to adjust per drawing
-  var MAX_RADIUS = 2;
+  var MAX_RADIUS = 5;
   var SCALE_COEFFICIENT = 1;
-  var LINE_INTENSITY = 6 / SCALE_COEFFICIENT;
-  var GRAPH_WIDTH = 60 * SCALE_COEFFICIENT;
-  var GRAPH_HEIGHT = 60 * SCALE_COEFFICIENT;
+  var LINE_INTENSITY = 12 / SCALE_COEFFICIENT;
+  var GRAPH_WIDTH = 30 * SCALE_COEFFICIENT;
+  var GRAPH_HEIGHT = 30 * SCALE_COEFFICIENT;
   var IMAGE_SOURCE = 'img/whoa-eye-vibrant-600-600.jpg';
 
 
